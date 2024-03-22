@@ -7,7 +7,13 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc && node dist"
+    "build": "tsc",
+    "db:pull": "npx prisma db pull",
+    "db:push": "npx prisma db push",
+    "generate": "npx prisma generate",
+    "pretest": "yarn generate",
+    "test": "jest",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",
