@@ -1,11 +1,9 @@
 #!/bin/bash
-sudo su    
-
 REPOSITORY=/home/ubuntu/build
 
 cd $REPOSITORY
 
-sudo /usr/bin/yarn
-sudo /usr/bin/yarn db:pull 
-sudo /usr/bin/yarn generate
-sudo /usr/bin/pm2 start dist
+echo '1234' | sudo -S /usr/bin/yarn
+echo '1234' | sudo -S /usr/bin/yarn db:pull 
+echo '1234' | sudo -S /usr/bin/yarn generate
+echo '1234' | sudo -S /usr/bin/pm2 start dist
