@@ -1,6 +1,5 @@
 #!/bin/bash
 sudo su    
-visudo -f /etc/sudoers
 
 REPOSITORY=/home/ubuntu/build
 
