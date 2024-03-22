@@ -49,11 +49,11 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: 🦖 S3에 압축된 서버 코드를 업로드
-        run: aws s3 cp --region ap-northeast-2 ./iterview.zip s3://iterview-build/deploy/
+        run: aws s3 cp --region ap-northeast-2 ./iterview.zip s3://iterview/deploy/
 
       - name: 🚀 AWS codeDeploy로 배포를 시작
         run: aws deploy create-deployment
           --application-name iterview-codedeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
           --deployment-group-name dev
-          --s3-location bucket=iterview-build,bundleType=zip,key=deploy/iterview.zip
+          --s3-location bucket=iterview,bundleType=zip,key=deploy/iterview.zip
