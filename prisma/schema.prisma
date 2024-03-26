@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,80 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Answer {
+  id                  Int       @id @default(autoincrement())
+  interviewQuestionId Int       @unique
+  questionId          Int       @unique
+  interviewId         Int       @unique
+  text                String?
+  mumble              Int?
+  silent              Int?
+  talk                Int?
+  time                DateTime? @db.Time(6)
+}
+
+model Feedback {
+  id                  Int     @id @default(autoincrement())
+  interviewQuestionId Int     @unique
+  answerId            Int     @unique
+  interviewId         Int     @unique
+  score               Int?
+  feedbackText        String?
+}
+
+model Interview {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique
+  subjectId     Int       @unique
+  startDateTime DateTime? @db.Timestamp(6)
+  endDateTime   DateTime? @db.Timestamp(6)
+  questionNum   Int?
+  score         Int?
+  otherFeedback String?
+  title         String?
+  onlyVoice     Boolean?
+}
+
+model Picture {
+  id                  Int  @id @default(autoincrement())
+  interviewQuestionId Int  @unique
+  angry               Int?
+  disgust             Int?
+  fear                Int?
+  happy               Int?
+  sad                 Int?
+  surprise            Int?
+  neutral             Int?
+}
+
+model Question {
+  id           Int     @id @default(autoincrement())
+  subjectId    Int     @unique
+  questionText String?
+  sampleAnswer String?
+}
+
+model Subject {
+  id          Int     @id @default(autoincrement())
+  subjectText String?
+  questionNum Int?
+}
+
+model User {
+  id         Int     @id @default(autoincrement())
+  userName   String
+  pictureURL String?
+  themeColor String? @db.Char(1)
+}
+
+model interviewQuestion {
+  id          Int      @id @default(autoincrement())
+  interviewId Int      @unique
+  questionId  Int      @unique
+  userId      Int      @unique
+  subjectId   Int      @unique
+  pin         Boolean?
+  again       Boolean?
 }
