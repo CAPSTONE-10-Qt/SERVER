@@ -1,4 +1,4 @@
-import { startInterviewDTO, makeFeedbackDTO } from '../interface/DTO';
+import { startInterviewDTO, makeFeedbackDTO, saveEmotionDTO } from '../interface/DTO';
 import { PrismaClient } from '@prisma/client';
 import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
@@ -86,7 +86,7 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
 
 const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionId: number) => {
     try {
-    const findInterviewQuestion = await.prisma.interviewQuestion.find({
+    const findInterviewQuestion = await prisma.interviewQuestion.find({
         where: {
             id: interviewQuestionId,
         },
@@ -127,9 +127,44 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
     } catch(error) {
         throw error;
     }
-}
+};
+
+const saveEmotion = async (saveEmotionDTO: saveEmotionDTO, interviewQuestionId: number) => {
+    try {
+        const findInterviewQuestion = await prisma.interviewQuestion.find({
+            where: {
+                id: interviewQuestionId,
+            },
+            select: {
+                interviewId: true,
+                questionId: true,
+                userId: true,
+                subjectId: true,
+                pin: true,
+                again: true,
+            }
+        });
+
+        const saveEmotion = await prisma.picture.create({
+            data: {
+                interviewQuestionId: interviewQuestionId,
+                angry: saveEmotionDTO.angry,
+                disgust: saveEmotionDTO.disgust,
+                fear: saveEmotionDTO.fear,
+                happy: saveEmotionDTO.happy,
+                sad: saveEmotionDTO.sad,
+                surprise: saveEmotionDTO.surprise,
+                neutral: saveEmotionDTO.neutral,
+            }
+        });
+        return saveEmotion;
+    } catch(error) {
+        throw error;
+    }
+};
 
 export default {
   startInterview,
   makeFeedback,
+  saveEmotion,
 };

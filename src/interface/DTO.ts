@@ -14,3 +14,13 @@ export interface startInterviewDTO {
     time: number;
     text: string;
   }
+
+  export interface saveEmotionDTO{
+    angry: number;
+    disgust: number;
+    fear: number;
+    happy: number;
+    sad: number;
+    surprise: number;
+    neutral: number;
+  }
