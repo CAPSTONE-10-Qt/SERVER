@@ -8,4 +8,5 @@ export default {
     INTERNAL_SERVER_ERROR: "서버 내 오류",
 
     START_INTERVIEW_SUCCESS: "인터뷰 시작 성공",
+    MAKE_FEEDBACK_SUCCESS: "피드백 생성 성공",
   };
