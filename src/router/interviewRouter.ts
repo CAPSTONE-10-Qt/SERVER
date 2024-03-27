@@ -18,5 +18,18 @@ router.post(
   interviewController.startInterview,
 );
 
+router.post(
+  '/answers/:interviewQuestionId',
+  [
+    param('interviewQuestionId').notEmpty(),
+    body('mumble'),
+    body('silent'),
+    body('talk'),
+    body('time'),
+    body('text'),
+  ],
+  errorValidator,
+  interviewController.makeFeedback,
+)
 
 export default router;
