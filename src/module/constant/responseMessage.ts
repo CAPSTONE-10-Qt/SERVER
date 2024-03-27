@@ -9,4 +9,5 @@ export default {
 
     START_INTERVIEW_SUCCESS: "인터뷰 시작 성공",
     MAKE_FEEDBACK_SUCCESS: "피드백 생성 성공",
+    SAVE_EMOTION_SUCCESS: "감정 저장 성공",
   };

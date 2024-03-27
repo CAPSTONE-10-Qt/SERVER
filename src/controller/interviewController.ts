@@ -1,4 +1,4 @@
-import { startInterviewDTO, makeFeedbackDTO } from '../interface/DTO';
+import { startInterviewDTO, makeFeedbackDTO, saveEmotionDTO } from '../interface/DTO';
 import { Request, Response, NextFunction } from 'express';
 import { message, statusCode } from '../module/constant';
 import { success } from '../module/constant/utils';
@@ -21,13 +21,27 @@ const startInterview = async (req: Request, res: Response, next: NextFunction) =
 
 const makeFeedback = async (req: Request, res: Response, next: NextFunction) => {
     const makeFeedbackDTO: makeFeedbackDTO = req.body;
-    
+    const {interviewQuestionId} = req.params
     try {
-        const data = await interviewService.makeFeedback(makeFeedbackDTO);
+        const data = await interviewService.makeFeedback(makeFeedbackDTO, +interviewQuestionId);
 
         return res
         .status(statusCode.CREATED)
         .send(success(statusCode.CREATED, message.MAKE_FEEDBACK_SUCCESS, data));
+    } catch (error) {
+        next(error);
+    }
+};
+
+const saveEmotion = async (req: Request, res: Response, next: NextFunction) => {
+    const saveEmotionDTO: saveEmotionDTO = req.body;
+    const {interviewQuestionId} = req.params
+    try {
+        const data = await interviewService.saveEmotion(saveEmotionDTO, +interviewQuestionId);
+
+        return res
+        .status(statusCode.CREATED)
+        .send(success(statusCode.CREATED, message.SAVE_EMOTION_SUCCESS, data));
     } catch (error) {
         next(error);
     }
@@ -36,4 +50,5 @@ const makeFeedback = async (req: Request, res: Response, next: NextFunction) => 
 export default {
   startInterview,
   makeFeedback,
+  saveEmotion,
 };

@@ -30,6 +30,23 @@ router.post(
   ],
   errorValidator,
   interviewController.makeFeedback,
-)
+);
+
+router.post(
+  '/picture/:interviewQuestionId',
+  [
+    param('interviewQuestionId').notEmpty(),
+    body('angry'),
+    body('disgust'),
+    body('fear'),
+    body('happy'),
+    body('sad'),
+    body('surprise'),
+    body('neutral'),
+  ],
+  errorValidator,
+  interviewController.saveEmotion,
+);
+
 
 export default router;
