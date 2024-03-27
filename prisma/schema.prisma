@@ -67,10 +67,11 @@ model Subject {
 }
 
 model User {
-  id         Int     @id @default(autoincrement())
-  userName   String
-  pictureURL String?
-  themeColor String? @db.Char(1)
+  id           Int     @id @default(autoincrement())
+  userName     String
+  pictureURL   String?
+  themeColor   String? @db.Char(1)
+  refreshToken String?
 }
 
 model interviewQuestion {
