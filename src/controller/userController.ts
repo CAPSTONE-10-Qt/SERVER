@@ -17,6 +17,22 @@ const accessUserInfo = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
+const updateUserInfo = async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.body.refreshToken;
+    const themeColor = req.body.themeColor;
+  
+    try {
+      const data = await userService.updateUserInfo(refreshToken, themeColor);
+  
+      return res
+        .status(statusCode.CREATED)
+        .send(success(statusCode.CREATED, message.UPDATE_USERINFO_SUCCESS, data));
+    } catch (error) {
+      next(error);
+    }
+  };
+
 export default {
-    accessUserInfo
+    accessUserInfo,
+    updateUserInfo
 };

@@ -14,4 +14,14 @@ router.get(
   userController.accessUserInfo,
 );
 
+router.patch(
+    '/',
+    [
+      body('refreshToken').notEmpty(),
+      body('themeColor'),
+    ],
+    errorValidator,
+    userController.updateUserInfo,
+  );
+
 export default router;
