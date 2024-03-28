@@ -23,6 +23,27 @@ const accessUserInfo = async (refreshToken: string) => {
     }
 };
 
+const updateUserInfo = async (refreshToken: string, themeColor: string) => {
+    try {
+        const userInfo = await prisma.user.update({
+            where: {
+                refreshToken: refreshToken,
+            },
+            select: {
+                id: true,
+                userName: true,
+                pictureURL: true,
+                themeColor: themeColor,
+                refreshToken: true,
+            }
+        });
+        return userInfo;
+    } catch(error) {
+        throw error;
+    }
+};
+
 export default {
   accessUserInfo,
+  updateUserInfo,
 };

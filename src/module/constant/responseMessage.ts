@@ -11,4 +11,5 @@ export default {
     MAKE_FEEDBACK_SUCCESS: "피드백 생성 성공",
     SAVE_EMOTION_SUCCESS: "감정 저장 성공",
     ACCESS_USERINFO_SUCCESS: "프로필 조회 성공",
+    UPDATE_USERINFO_SUCCESS: "프로필 수정 성공",
   };
