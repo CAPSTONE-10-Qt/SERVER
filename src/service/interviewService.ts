@@ -163,8 +163,37 @@ const saveEmotion = async (saveEmotionDTO: saveEmotionDTO, interviewQuestionId: 
     }
 };
 
+const endInterview = async (endDateTime: string, interviewQuestionId: number) => {
+    try {
+        const findInterviewQuestion = await prisma.interviewQuestion.find({
+            where: {
+                id: interviewQuestionId,
+            },
+            select: {
+                interviewId: true,
+            }
+        });
+
+        const endInterview = await prisma.interview.update({
+            where: {
+                id: findInterviewQuestion.interviewId
+            },
+            data: {
+                id: true,
+                startDateTime: true,
+                endDateTime: endDateTime,
+                questionNum: true,
+            }
+        });
+        return endInterview;
+    } catch(error) {
+        throw error;
+    }
+};
+
 export default {
   startInterview,
   makeFeedback,
   saveEmotion,
+  endInterview,
 };
