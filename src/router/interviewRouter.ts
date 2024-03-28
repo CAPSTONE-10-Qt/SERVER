@@ -48,5 +48,15 @@ router.post(
   interviewController.saveEmotion,
 );
 
+router.patch(
+  '/:interviewQuestionId',
+  [
+    param('interviewQuestionId').notEmpty(),
+    body('endDateTime'),
+  ],
+  errorValidator,
+  interviewController.endInterview,
+);
+
 
 export default router;

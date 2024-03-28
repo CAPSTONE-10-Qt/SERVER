@@ -47,8 +47,24 @@ const saveEmotion = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+const endInterview = async (req: Request, res: Response, next: NextFunction) => {
+    const {interviewQuestionId} = req.params
+    const endDateTime = req.body
+
+    try {
+        const data = await interviewService.endInterview(endDateTime, +interviewQuestionId);
+
+        return res
+        .status(statusCode.CREATED)
+        .send(success(statusCode.CREATED, message.END_INTERVIEW_SUCCESS, data));
+    } catch (error) {
+        next(error);
+    }
+}
+
 export default {
   startInterview,
   makeFeedback,
   saveEmotion,
+  endInterview,
 };

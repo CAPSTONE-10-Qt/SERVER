@@ -12,4 +12,5 @@ export default {
     SAVE_EMOTION_SUCCESS: "감정 저장 성공",
     ACCESS_USERINFO_SUCCESS: "프로필 조회 성공",
     UPDATE_USERINFO_SUCCESS: "프로필 수정 성공",
+    END_INTERVIEW_SUCCESS: "인터뷰 종료 성공",
   };
