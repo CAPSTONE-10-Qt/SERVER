@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Answer {
-  id                  Int       @id @default(autoincrement())
-  interviewQuestionId Int       @unique
-  questionId          Int       @unique
-  interviewId         Int       @unique
+  id                  Int     @id @default(autoincrement())
+  interviewQuestionId Int     @unique
+  questionId          Int     @unique
+  interviewId         Int     @unique
   text                String?
-  mumble              Int?
-  silent              Int?
-  talk                Int?
-  time                DateTime? @db.Time(6)
+  mumble              Int
+  silent              Int
+  talk                Int
+  time                Int
 }
 
 model Feedback {
@@ -29,11 +29,11 @@ model Feedback {
 }
 
 model Interview {
-  id            Int       @id @default(autoincrement())
-  userId        Int       @unique
-  subjectId     Int       @unique
-  startDateTime DateTime? @db.Timestamp(6)
-  endDateTime   DateTime? @db.Timestamp(6)
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  subjectId     Int      @unique
+  startDateTime String
+  endDateTime   String
   questionNum   Int?
   score         Int?
   otherFeedback String?
@@ -42,15 +42,9 @@ model Interview {
 }
 
 model Picture {
-  id                  Int  @id @default(autoincrement())
-  interviewQuestionId Int  @unique
-  angry               Int?
-  disgust             Int?
-  fear                Int?
-  happy               Int?
-  sad                 Int?
-  surprise            Int?
-  neutral             Int?
+  id                  Int    @id @default(autoincrement())
+  interviewQuestionId Int    @unique
+  emotion             String
 }
 
 model Question {
@@ -70,7 +64,7 @@ model User {
   id           Int     @id @default(autoincrement())
   userName     String
   pictureURL   String?
-  themeColor   String? @db.Char(1)
+  themeColor   String?
   refreshToken String?
 }
 

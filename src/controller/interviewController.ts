@@ -62,9 +62,24 @@ const endInterview = async (req: Request, res: Response, next: NextFunction) => 
     }
 }
 
+const firstResultInterview = async (req: Request, res: Response, next: NextFunction) => {
+    const {interviewId} = req.params
+
+    try {
+        const data = await interviewService.firstResultInterview(+interviewId);
+
+        return res
+        .status(statusCode.CREATED)
+        .send(success(statusCode.CREATED, message.FIRST_RESULT_INTERVIEW_SUCCESS, data));
+    } catch (error) {
+        next(error);
+    }
+}
+
 export default {
   startInterview,
   makeFeedback,
   saveEmotion,
   endInterview,
+  firstResultInterview,
 };

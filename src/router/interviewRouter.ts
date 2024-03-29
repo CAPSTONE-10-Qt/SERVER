@@ -58,5 +58,14 @@ router.patch(
   interviewController.endInterview,
 );
 
+router.get(
+  '/result/:interviewId',
+  [
+    param('interviewId').notEmpty(),
+  ],
+  errorValidator,
+  interviewController.firstResultInterview,
+);
+
 
 export default router;
