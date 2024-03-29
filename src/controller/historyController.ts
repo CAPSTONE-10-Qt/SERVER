@@ -32,7 +32,22 @@ const getInterviewDetail = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+const deleteInterview = async (req: Request, res: Response, next: NextFunction) => {
+  const {interviewId} = req.params;
+
+  try {
+    const data = await historyService.deleteInterview(+interviewId);
+
+    return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.DELETE_INTERVIEW_SUCCESS, data));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
     getInterviewList,
     getInterviewDetail,
+    deleteInterview,
 };
