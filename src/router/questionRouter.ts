@@ -14,4 +14,13 @@ router.patch(
   questionController.addPin,
 );
 
+router.delete(
+    '/:interviewQuestionId',
+    [
+        param('interviewQuestionId').notEmpty(),
+    ],
+    errorValidator,
+    questionController.deletePin,
+)
+
 export default router;

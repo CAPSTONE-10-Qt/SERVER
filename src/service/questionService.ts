@@ -19,6 +19,23 @@ const addPin = async (interveiwQuestionId: number) => {
     }
 };
 
+const deletePin = async (interveiwQuestionId: number) => {
+    try {
+        const pin = await prisma.interviewQuestion.update({
+            where: {
+                id: interveiwQuestionId
+            },
+            data: {
+                pin: false,
+            }
+        });
+        return pin
+    } catch(error) {
+        throw error;
+    }
+};
+
 export default {
   addPin,
+  deletePin,
 };
