@@ -16,11 +16,5 @@ export interface startInterviewDTO {
   }
 
   export interface saveEmotionDTO{
-    angry: number;
-    disgust: number;
-    fear: number;
-    happy: number;
-    sad: number;
-    surprise: number;
-    neutral: number;
+    emotion: string;
   }

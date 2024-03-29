@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 const accessUserInfo = async (refreshToken: string) => {
     try {
-        const userInfo = await prisma.user.findfirst({
+        const userInfo = await prisma.user.findFirst({
             where: {
                 refreshToken: refreshToken,
             },
