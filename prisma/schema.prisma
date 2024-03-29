@@ -32,8 +32,8 @@ model Interview {
   id            Int      @id @default(autoincrement())
   userId        Int      @unique
   subjectId     Int      @unique
-  startDateTime String
-  endDateTime   String
+  startDateTime DateTime @db.Time(6)
+  endDateTime   DateTime @db.Time(6)
   questionNum   Int?
   score         Int?
   otherFeedback String?

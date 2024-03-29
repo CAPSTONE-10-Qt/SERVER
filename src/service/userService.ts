@@ -7,7 +7,7 @@ const accessUserInfo = async (refreshToken: string) => {
     try {
         const userInfo = await prisma.user.findFirst({
             where: {
-                refreshToken: refreshToken,
+                refreshToken: refreshToken
             },
             select: {
                 id: true,
@@ -25,16 +25,21 @@ const accessUserInfo = async (refreshToken: string) => {
 
 const updateUserInfo = async (refreshToken: string, themeColor: string) => {
     try {
-        const userInfo = await prisma.user.update({
+        const findUserId = await prisma.user.findFirst({
             where: {
                 refreshToken: refreshToken,
             },
             select: {
                 id: true,
-                userName: true,
-                pictureURL: true,
+            }
+            
+        })
+        const userInfo = await prisma.user.update({
+            where: {
+                id: findUserId?.id
+            },
+            data: {
                 themeColor: themeColor,
-                refreshToken: true,
             }
         });
         return userInfo;

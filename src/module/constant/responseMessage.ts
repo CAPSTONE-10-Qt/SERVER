@@ -14,4 +14,5 @@ export default {
     UPDATE_USERINFO_SUCCESS: "프로필 수정 성공",
     END_INTERVIEW_SUCCESS: "인터뷰 종료 성공",
     FIRST_RESULT_INTERVIEW_SUCCESS: "첫번째 인터뷰 결과 조회 성공",
+    GET_INTERVIEWLIST_SUCCESS: "면접 기록 리스트 조회 성공",
   };
