@@ -15,4 +15,5 @@ export default {
     END_INTERVIEW_SUCCESS: "인터뷰 종료 성공",
     FIRST_RESULT_INTERVIEW_SUCCESS: "첫번째 인터뷰 결과 조회 성공",
     GET_INTERVIEWLIST_SUCCESS: "면접 기록 리스트 조회 성공",
+    GET_INTERVIEWDETAIL_SUCCESS: "면접 기록 상세 조회 성공",
   };

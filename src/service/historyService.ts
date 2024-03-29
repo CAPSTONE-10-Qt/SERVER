@@ -66,6 +66,118 @@ const getInterviewList = async (refreshToken: string, sortNum: number) => {
     }
 };
 
+const getAnswerAndFeedback = async (questionId: number, interviewId: number) => {
+    const answer = await prisma.answer.findFirst({
+        where: {
+            questionId: questionId,
+            interviewId: interviewId
+        }
+    });
+    const question = await prisma.question.findFirst({
+        where: {
+            id: questionId,
+        },
+        select: {
+            questionText: true,
+            sampleAnswer: true
+        }
+    })
+    if (answer && question) {
+        const feedback = await prisma.feedback.findFirst({
+            where: {
+                answerId: answer.id,
+                interviewId: interviewId
+            }
+        });
+        if (feedback) {
+            return {
+                questionId: questionId,
+                questionText: question.questionText,
+                sampleAnswer: question.sampleAnswer,
+                score: feedback.score,
+                text: answer.text,
+                feedbackText: feedback.feedbackText,
+                time: answer.time,
+            }
+        }
+    }
+    if (!answer || !question) {
+        return {};
+    }
+}
+
+const getQuestionDetails = async (interviewId: number) => {
+    const findQuestionList = await prisma.interviewQuestion.findMany({
+        where: {
+            interviewId: interviewId,
+        },
+        select: {
+            id: true,
+            interviewId: true,
+            questionId: true,
+        }
+    })
+    const questionDetails = [];
+    for (const question of findQuestionList) {
+        const details = await getAnswerAndFeedback(question.questionId, question.interviewId);
+        questionDetails.push(details);
+    }
+    return questionDetails;
+}
+
+const getInterviewDetail = async(interviewId: number) => {
+    try {
+        const questionDetails = await getQuestionDetails(interviewId)
+        const findInterview = await prisma.interview.findFirst({
+            where: {
+                id: interviewId,
+            },
+            select: {
+                id: true,
+                userId: true,
+                subjectId: true,
+                startDateTime: true,
+                endDateTime: true,
+                questionNum: true,
+                score: true,
+                otherFeedback: true,
+                title: true,
+                onlyVoice: true,
+            }
+        })
+
+        if (findInterview){
+            const findSubjectText = await prisma.subject.findFirst({
+                where: {
+                    id: findInterview.subjectId
+                },
+                select: {
+                    subjectText: true,
+                }
+            })
+            const result = ({
+                data: {
+                    id: findInterview.id,
+                    subjectText: findSubjectText?.subjectText,
+                    startDateTime: findInterview.startDateTime,
+                    endDateTime: findInterview.endDateTime,
+                    questionNum: findInterview.questionNum,
+                    score: findInterview.score,
+                    title: findInterview.title,
+                    otherFeedback: findInterview.otherFeedback,
+                    onlyVoice: findInterview.onlyVoice,
+                    questionList: questionDetails,
+                }
+            })
+            return result
+        }
+
+    } catch(error) {
+        throw error;
+    }
+};
+
 export default {
     getInterviewList,
+    getInterviewDetail,
 };
