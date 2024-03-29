@@ -18,4 +18,5 @@ export default {
     GET_INTERVIEWDETAIL_SUCCESS: "면접 기록 상세 조회 성공",
     DELETE_INTERVIEW_SUCCESS: "면접 기록 삭제 성공",
     ADD_PIN_SUCCESS: "질문 스크랩 성공",
+    DELETE_PIN_SUCCESS: "질문 스크랩 취소 성공",
   };
