@@ -15,4 +15,12 @@ router.get(
   historyController.getInterviewList,
 );
 
+router.get(
+  '/:interviewId',
+  [
+    param('interviewId').notEmpty(),
+  ],
+  errorValidator,
+  historyController.getInterviewDetail,
+)
 export default router;
