@@ -23,4 +23,14 @@ router.get(
   errorValidator,
   historyController.getInterviewDetail,
 )
+
+router.delete(
+  '/:interviewId',
+  [
+    param('interviewId').notEmpty(),
+  ],
+  errorValidator,
+  historyController.deleteInterview,
+
+)
 export default router;
