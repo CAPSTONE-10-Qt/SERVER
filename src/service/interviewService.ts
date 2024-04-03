@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
 import { count } from 'console';
+import { scoreAnswer } from '../index'
 const prisma = new PrismaClient();
 
 const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken: string) => {
@@ -128,13 +129,16 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
                 time: makeFeedbackDTO.time,
             }
         });
+
+        const feedbackText = await scoreAnswer(makeFeedbackDTO.text);
+
         const feedback = await prisma.feedback.create({
             data: {
                 interviewQuestionId: interviewQuestionId,
                 answerId: answer.id,
                 interviewId: answer.interviewId,
                 score: null,
-                feedbackText: null,
+                feedbackText: feedbackText,
             }
         })
     
