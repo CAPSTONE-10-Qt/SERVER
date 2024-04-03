@@ -8,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/',
   [
-    body('refreshToken').notEmpty(),
+    header('refreshToken').notEmpty(),
     body('subjectText').notEmpty(),
     body('questionNum').notEmpty(),
     body('onlyVoice').notEmpty(),

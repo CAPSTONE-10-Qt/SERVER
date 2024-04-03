@@ -4,8 +4,7 @@ import { success } from '../module/constant/utils';
 import { userService } from '../service';
 
 const accessUserInfo = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.body;
-
+  const refreshToken = req.headers['refreshtoken'] as string;
   try {
     const data = await userService.accessUserInfo(refreshToken);
 
@@ -18,9 +17,8 @@ const accessUserInfo = async (req: Request, res: Response, next: NextFunction) =
 };
 
 const updateUserInfo = async (req: Request, res: Response, next: NextFunction) => {
-    const refreshToken = req.body.refreshToken;
+  const refreshToken = req.headers['refreshtoken'] as string;
     const themeColor = req.body.themeColor;
-  
     try {
       const data = await userService.updateUserInfo(refreshToken, themeColor);
   

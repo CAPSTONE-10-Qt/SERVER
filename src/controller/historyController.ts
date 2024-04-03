@@ -4,7 +4,7 @@ import { success } from '../module/constant/utils';
 import { historyService } from '../service';
 
 const getInterviewList = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.body;
+  const refreshToken = req.headers['refreshtoken'] as string;
   const {sortNum} = req.params;
 
   try {
