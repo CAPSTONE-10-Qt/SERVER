@@ -5,9 +5,17 @@ const prisma = new PrismaClient();
 
 const addPin = async (interveiwQuestionId: number) => {
     try {
-        const pin = await prisma.interviewQuestion.update({
+        const findQuestionId = await prisma.interviewQuestion.findFirst({
             where: {
-                id: interveiwQuestionId
+                id: interveiwQuestionId,
+            },
+            select: {
+                questionId: true
+            }
+        })
+        const pin = await prisma.question.update({
+            where: {
+                id: findQuestionId?.questionId
             },
             data: {
                 pin: true,
@@ -21,9 +29,17 @@ const addPin = async (interveiwQuestionId: number) => {
 
 const deletePin = async (interveiwQuestionId: number) => {
     try {
-        const pin = await prisma.interviewQuestion.update({
+        const findQuestionId = await prisma.interviewQuestion.findFirst({
             where: {
-                id: interveiwQuestionId
+                id: interveiwQuestionId,
+            },
+            select: {
+                questionId: true
+            }
+        })
+        const pin = await prisma.question.update({
+            where: {
+                id: findQuestionId?.questionId
             },
             data: {
                 pin: false,

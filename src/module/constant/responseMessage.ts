@@ -19,4 +19,5 @@ export default {
     DELETE_INTERVIEW_SUCCESS: "면접 기록 삭제 성공",
     ADD_PIN_SUCCESS: "질문 스크랩 성공",
     DELETE_PIN_SUCCESS: "질문 스크랩 취소 성공",
+    GET_STUDYNOTE_SUCCESS: "학습 노트 조회 성공",
   };

@@ -52,6 +52,8 @@ model Question {
   subjectId    Int     @unique
   questionText String?
   sampleAnswer String?
+  pin Boolean
+  again Boolean
 }
 
 model Subject {
@@ -74,6 +76,4 @@ model interviewQuestion {
   questionId  Int      @unique
   userId      Int      @unique
   subjectId   Int      @unique
-  pin         Boolean?
-  again       Boolean?
 }
