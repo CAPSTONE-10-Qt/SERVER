@@ -6,7 +6,7 @@ import { interviewService } from '../service';
 
 const startInterview = async (req: Request, res: Response, next: NextFunction) => {
   const startInterviewDTO: startInterviewDTO = req.body;
-  const refreshToken = req.body;
+  const refreshToken = req.headers['refreshtoken'] as string;
 
   try {
     const data = await interviewService.startInterview(startInterviewDTO, refreshToken);

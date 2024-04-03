@@ -8,7 +8,7 @@ const router: Router = Router();
 router.get(
   '/',
   [
-    body('refreshToken').notEmpty(),
+    header('refreshToken').notEmpty(),
   ],
   errorValidator,
   userController.accessUserInfo,
@@ -17,7 +17,7 @@ router.get(
 router.patch(
     '/',
     [
-      body('refreshToken').notEmpty(),
+      header('refreshToken').notEmpty(),
       body('themeColor'),
     ],
     errorValidator,

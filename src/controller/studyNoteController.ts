@@ -4,7 +4,7 @@ import { success } from '../module/constant/utils';
 import { studyNoteService } from '../service';
 
 const getStudyNote = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.body;
+  const refreshToken = req.headers['refreshtoken'] as string;
   const sortNum = +req.params.sortNum;
   const subjectText = req.query.subjectText as string;
   const onlyWrong = req.query.onlyWrong === 'true'; 

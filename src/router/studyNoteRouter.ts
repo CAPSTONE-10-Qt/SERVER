@@ -11,7 +11,7 @@ router.get(
       param('sortNum').notEmpty(),
       query('subjectText').notEmpty(),
       query('onlyWrong').notEmpty(),
-      body('refreshToken').notEmpty(),
+      header('refreshToken').notEmpty(),
     ],
     errorValidator,
     studyNoteController.getStudyNote,

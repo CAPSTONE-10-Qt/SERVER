@@ -9,7 +9,7 @@ router.get(
   '/:sortNum',
   [
     param('sortNum'),
-    body('refreshToken').notEmpty(),
+    header('refreshToken').notEmpty(),
   ],
   errorValidator,
   historyController.getInterviewList,
