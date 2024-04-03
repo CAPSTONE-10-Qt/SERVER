@@ -3,7 +3,7 @@ import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
 const prisma = new PrismaClient();
 
-const getStudyNote = async (refreshToken: string, sortNum: number) => {
+const getStudyNote = async (refreshToken: string, subjectText: string, onlyWrong: boolean, sortNum: number) => {
     try {
         const getUser= await prisma.user.findFirst({
             where: {
@@ -79,19 +79,27 @@ const getStudyNote = async (refreshToken: string, sortNum: number) => {
                         subjectText: true
                     }
                 })
-                const result = ({
-                    data: {
-                        id: question!.id,
-                        subjectText: getSubjectText!.subjectText,
-                        title: getTitle?.title,
-                        again: question!.again,
-                        questionText: question!.questionText,
-                        score: getFeedback?.score,
-                        pin: question!.pin
+                if ((subjectText === 'ALL' || subjectText === getSubjectText!.subjectText) &&
+                    (!onlyWrong || (getFeedback?.score !== 1 && getFeedback!.score !== 0.5))) {
+                    const result = ({
+                        data: {
+                            id: question!.id,
+                            subjectText: getSubjectText!.subjectText,
+                            title: getTitle?.title,
+                            again: question!.again,
+                            questionText: question!.questionText,
+                            score: getFeedback?.score,
+                            pin: question!.pin
+                        }
+                    });
+                    questionList.push(result)
                     }
-                });
-                questionList.push(result)
                 }    
+            }
+            if (sortNum === 2) {
+                questionList.filter(question => question.data.again === true);
+            } else if (sortNum === 3) {
+                questionList.filter(question => question.data.pin === true);
             }
         return {
             data: {
