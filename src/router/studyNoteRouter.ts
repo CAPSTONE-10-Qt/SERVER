@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body, header, param } from 'express-validator';
+import { body, header, param, query } from 'express-validator';
 import { studyNoteController } from '../controller';
 import errorValidator from '../middleware/error/errorValidator';
 
@@ -9,6 +9,8 @@ router.get(
     '/:sortNum',
     [
       param('sortNum').notEmpty(),
+      query('subjectText').notEmpty(),
+      query('onlyWrong').notEmpty(),
       body('refreshToken').notEmpty(),
     ],
     errorValidator,

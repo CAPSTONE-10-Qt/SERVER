@@ -111,8 +111,6 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
             questionId: true,
             userId: true,
             subjectId: true,
-            pin: true,
-            again: true,
         }
     });
 
