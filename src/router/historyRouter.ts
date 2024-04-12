@@ -9,20 +9,11 @@ router.get(
   '/:sortNum',
   [
     param('sortNum'),
-    header('refreshToken').notEmpty(),
+    header('refreshToken'),
   ],
   errorValidator,
   historyController.getInterviewList,
 );
-
-router.get(
-  '/:interviewId',
-  [
-    param('interviewId').notEmpty(),
-  ],
-  errorValidator,
-  historyController.getInterviewDetail,
-)
 
 router.delete(
   '/:interviewId',

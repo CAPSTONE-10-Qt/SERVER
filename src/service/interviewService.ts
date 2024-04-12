@@ -2,8 +2,8 @@ import { startInterviewDTO, makeFeedbackDTO, saveEmotionDTO } from '../interface
 import { PrismaClient } from '@prisma/client';
 import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
-import { count } from 'console';
-import { scoreAnswer } from '../index'
+import { count, error } from 'console';
+import { Answer, Score } from '../index'
 const prisma = new PrismaClient();
 
 const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken: string) => {
@@ -22,79 +22,75 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
             subjectText: startInterviewDTO.subjectText,
         },
         select: {
-            id: true,
+            id: true
         },
     });
 
-    const countInterviewToday = await prisma.interview.count({
+    let countInterviewToday = await prisma.interview.count({
         where: {
             startDateTime: startInterviewDTO.startDateTime
         }
     });
 
-    if (findSubjectId && findUserId) {
-        const questionList = await prisma.question.findMany({
-            where: {
-                subjectId: findSubjectId.id
-            },
-            select: {
-                id: true,
-                questionText: true,
-            },
-        });
-
-        const selectedQuestions = [];
-        const numQuestions = Math.min(questionList.length, startInterviewDTO.questionNum);
-        const shuffledQuestions = questionList.sort(() => Math.random() - 0.5);
-        for (let i = 0; i < numQuestions; i++) {
-            selectedQuestions.push(shuffledQuestions[i]);
-        };
-
-        const title = startInterviewDTO.startDateTime + "모의면접" + countInterviewToday
-
-        const createInterview = await prisma.interview.create({
-            data: {
-              userId: findUserId.id,
-              subjectId: findSubjectId.id,
-              questionNum: startInterviewDTO.questionNum,
-              title: title,
-              endDateTime: "",
-              onlyVoice: startInterviewDTO.onlyVoice,
-              startDateTime: startInterviewDTO.startDateTime,
-            },
-        });
-
-        const interviewQuestionPromises = selectedQuestions.map(async (question) => {
-            const createdInterviewQuestion = await prisma.interviewQuestion.create({
-                data: {
-                    interviewId: createInterview.id,
-                    questionId: question.id,
-                    userId: findUserId.id,
-                    subjectId: findSubjectId.id,
-                }
-            });
-        });
-
-        const interview = ({
-            data: {
-                id: createInterview.id,
-                userId: createInterview.userId,
-                subjectText: startInterviewDTO.subjectText,
-                startDateTime: startInterviewDTO.startDateTime,
-                questionNum: startInterviewDTO.questionNum,
-                title: createInterview.title,
-                onlyVoice: startInterviewDTO.onlyVoice,
-                questionList: selectedQuestions.map(question => ({
-                    id: question.id,
-                    questionText: question.questionText
-                  }))
-            }
-        })
-
-        return interview;
-    } else {
-        throw new Error("Subject not found.");
+    if (countInterviewToday == null) {
+        countInterviewToday = 1
     }
+
+    const questionList = await prisma.question.findMany({
+        where: {
+            subjectId: findSubjectId!.id
+        },
+        select: {
+            id: true,
+            questionText: true,
+        },
+    });
+
+    const selectedQuestions = [];
+    const numQuestions = Math.min(questionList.length, startInterviewDTO.questionNum);
+    const shuffledQuestions = questionList.sort(() => Math.random() - 0.5);
+    for (let i = 0; i < numQuestions; i++) {
+        selectedQuestions.push(shuffledQuestions[i]);
+    };
+
+    const title = (startInterviewDTO?.startDateTime || '') + "모의면접" + countInterviewToday!;
+
+    const createInterview = await prisma.interview.create({
+        data: {
+            userId: findUserId!.id,
+            subjectId: findSubjectId!.id,
+            startDateTime: startInterviewDTO!.startDateTime,
+            questionNum: startInterviewDTO.questionNum,
+            title: title,
+            onlyVoice: startInterviewDTO.onlyVoice,
+        },
+    });
+
+    const interviewQuestionPromises = selectedQuestions.map(async (question) => {
+        const createdInterviewQuestion = await prisma.interviewQuestion.create({
+            data: {
+                interviewId: createInterview.id,
+                questionId: question.id,
+                userId: findUserId!.id,
+                subjectId: findSubjectId!.id,
+            }
+        });
+    });
+
+    const interview = ({
+            id: createInterview.id,
+            userId: createInterview.userId,
+            subjectText: startInterviewDTO.subjectText,
+            startDateTime: startInterviewDTO.startDateTime,
+            questionNum: startInterviewDTO.questionNum,
+            title: createInterview.title,
+            onlyVoice: startInterviewDTO.onlyVoice,
+            questionList: selectedQuestions.map(question => ({
+                id: question.id,
+                questionText: question.questionText
+                }))
+        })
+    return interview;
   } catch (error) {
     throw error;
   }
@@ -114,6 +110,15 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
         }
     });
 
+    const findQuestion = await prisma.question.findFirst({
+        where: {
+            id: findInterviewQuestion?.questionId
+        },
+        select: {
+            questionText: true
+        }
+    })
+
     if (findInterviewQuestion) {
         const answer = await prisma.answer.create({
             data: {
@@ -128,18 +133,18 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
             }
         });
 
-        const feedbackText = await scoreAnswer(makeFeedbackDTO.text);
+        const feedbackText = await Answer(findQuestion!.questionText!,makeFeedbackDTO.text);
+        let score = await Score(findQuestion!.questionText!, makeFeedbackDTO.text)
 
         const feedback = await prisma.feedback.create({
             data: {
                 interviewQuestionId: interviewQuestionId,
                 answerId: answer.id,
                 interviewId: answer.interviewId,
-                score: null,
+                score: +score,
                 feedbackText: feedbackText,
             }
         })
-    
         return answer;
     }
     } catch(error) {
@@ -160,111 +165,6 @@ const saveEmotion = async (saveEmotionDTO: saveEmotionDTO, interviewQuestionId: 
         throw error;
     }
 };
-
-const endInterview = async (endDateTime: string, interviewQuestionId: number) => {
-    try {
-        const findInterviewQuestion = await prisma.interviewQuestion.findFirst({
-            where: {
-                id: interviewQuestionId,
-            },
-            select: {
-                interviewId: true,
-            }
-        });
-
-        if (findInterviewQuestion) { 
-            const endInterview = await prisma.interview.update({
-                where: {
-                    id: findInterviewQuestion.interviewId
-                },
-                data: {
-                    endDateTime: endDateTime,
-                }
-            });
-
-            const Interview = await prisma.interview.findFirst({
-                where: {
-                    id: findInterviewQuestion.interviewId
-                },
-                select: {
-                    id: true,
-                    startDateTime: true,
-                    endDateTime: true,
-                    questionNum: true,
-                }
-            })
-            return Interview;
-        } else {
-            throw new Error("Interview question not found.");
-        }
-    } catch(error) {
-        throw error;
-    }
-};
-
-const getAnswerAndFeedback = async (questionId: number, interviewId: number) => {
-    const answer = await prisma.answer.findFirst({
-        where: {
-            questionId: questionId,
-            interviewId: interviewId
-        }
-    });
-    
-    const question = await prisma.question.findFirst({
-        where: {
-            id: questionId,
-        },
-        select: {
-            questionText: true,
-            sampleAnswer: true
-        }
-    })
-
-    if (answer && question) {
-        const feedback = await prisma.feedback.findFirst({
-            where: {
-                answerId: answer.id,
-                interviewId: interviewId
-            }
-        });
-        if (feedback) {
-            return {
-                questionId: questionId,
-                questionText: question.questionText,
-                sampleAnswer: question.sampleAnswer,
-                score: feedback.score,
-                text: answer.text,
-                feedbackText: feedback.feedbackText,
-                time: answer.time,
-                mumble: answer.mumble,
-                silent: answer.silent,
-                talk: answer.talk,
-            }
-        }
-    }
-    if (!answer || !question) {
-        return {};
-    }
-}
-
-const getQuestionDetails = async (interviewId: number) => {
-    const findQuestionList = await prisma.interviewQuestion.findMany({
-        where: {
-            interviewId: interviewId,
-        },
-        select: {
-            id: true,
-            interviewId: true,
-            questionId: true,
-        }
-    })
-    const questionDetails = [];
-    for (const question of findQuestionList) {
-        const details = await getAnswerAndFeedback(question.questionId, question.interviewId);
-        questionDetails.push(details);
-    }
-    return questionDetails;
-}
 
 const getEmotionForInterview = async (interviewId: number) => {
     // interviewId에 해당하는 interviewQuestion들을 찾음
@@ -305,11 +205,37 @@ const getEmotionForInterview = async (interviewId: number) => {
             emotionCounts[emotion]++;
         });
     }
-    const totalNegativeEmotions = emotionCounts.angry + emotionCounts.disgust + emotionCounts.fear + emotionCounts.sad;
-    const totalEmotions = Object.values(emotionCounts).reduce((sum, count) => sum + count, 0);
+    let totalNegativeEmotions = 0;
+    let totalEmotions = 0;
+    let totalPositiveEmotions = 0;
+    let totalNeutralEmotions = 0;
+    totalNegativeEmotions = emotionCounts.angry + emotionCounts.disgust + emotionCounts.fear + emotionCounts.sad;
+    totalPositiveEmotions = emotionCounts.happy;
+    totalNeutralEmotions = emotionCounts.surprise + emotionCounts.neutral;
+
+    const saveEmotionCount = await prisma.interview.update({
+        where: {
+            id: interviewId,
+        },
+        data: {
+            facePositive: totalPositiveEmotions,
+            faceNegative: totalNegativeEmotions,
+            faceNeutral: totalNegativeEmotions,
+        }
+    })
+    if (totalNegativeEmotions == null) {
+        totalNegativeEmotions = 0;
+    }
+    totalEmotions = Object.values(emotionCounts).reduce((sum, count) => sum + count, 0);
+    if (totalEmotions == null) {
+        totalEmotions = 0;
+    }
     const threshold = totalEmotions / 2;
 
-    if (totalNegativeEmotions > threshold) {
+    if (threshold == 0) {
+        return null
+    }
+    else if (totalNegativeEmotions > threshold) {
         return "표정관리해";
     } else {
         return null;
@@ -322,19 +248,68 @@ const calculateScore = (mumble:number, silent:number, talk:number) => {
     return mumbleScore + silentScore;
 };
 
-const firstResultInterview = async (interviewId: number) => {
+const getAnswerAndFeedback = async (questionId: number, interviewId: number) => {
+    const answer = await prisma.answer.findFirst({
+        where: {
+            questionId: questionId,
+            interviewId: interviewId
+        }
+    });
+    
+    const question = await prisma.question.findFirst({
+        where: {
+            id: questionId,
+        },
+        select: {
+            questionText: true,
+            sampleAnswer: true
+        }
+    })
+
+    const feedback = await prisma.feedback.findFirst({
+        where: {
+            answerId: answer!.id,
+            interviewId: interviewId
+        }
+    });
+    return {
+        questionId: questionId,
+        questionText: question!.questionText,
+        sampleAnswer: question!.sampleAnswer,
+        score: feedback!.score,
+        text: answer!.text,
+        feedbackText: feedback!.feedbackText,
+        time: answer!.time,
+        mumble: answer!.mumble,
+        silent: answer!.silent,
+        talk: answer!.talk,
+    }
+}
+
+const getQuestionDetails = async (interviewId: number) => {
+    const findQuestionList = await prisma.interviewQuestion.findMany({
+        where: {
+            interviewId: interviewId,
+        },
+        select: {
+            id: true,
+            interviewId: true,
+            questionId: true,
+        }
+    })
+    const questionDetails = [];
+    for (const question of findQuestionList) {
+        const details = await getAnswerAndFeedback(question.questionId, question.interviewId);
+        questionDetails.push(details);
+    }
+    return questionDetails;
+}
+
+const endInterview = async (endDateTime: string, interviewId: number) => {
     try {
         const questionDetails = await getQuestionDetails(interviewId)
-        const textScore = questionDetails.reduce((total, question) => {
-            if (question!.score === 1) {
-                return total + 1;
-            } else if (question!.score === 0.5) {
-                return total + 0.5;
-            } else {
-                return total;
-            }
-        }, 0);
 
+        let totalScore = 0;
         let otherScore = 0;
         for (const question of questionDetails) {
             const mumble = question!.mumble;
@@ -342,7 +317,10 @@ const firstResultInterview = async (interviewId: number) => {
             const talk = question!.talk;
             const score = calculateScore(mumble!, silent!, talk!);
             otherScore += score;
+            const textScore = question!.score;
+            totalScore += textScore!;
         }
+        otherScore = otherScore/questionDetails.length
 
         let otherFeedback = "말 잘하네";
         if (otherScore < 25 && 20 <= otherScore) {
@@ -355,16 +333,42 @@ const firstResultInterview = async (interviewId: number) => {
             const otherFeedback = "심각한데?";
         };
 
-        const makeScore = await prisma.interview.update({
+        const totalTime = questionDetails.reduce((total, detail) => total + detail.time, 0);
+
+        const endInterview = await prisma.interview.update({
             where: {
                 id: interviewId,
             },
             data: {
-                score: textScore/getQuestionDetails.length *70 + otherScore,
+                score: totalScore/getQuestionDetails.length*70 + otherScore,
                 otherFeedback: otherFeedback + getEmotionForInterview(interviewId),
+                endDateTime: endDateTime,
+                textScore: totalScore/getQuestionDetails.length * 70,
+                otherScore: otherScore,
+                totalTime: totalTime
             }
         });
 
+        const Interview = await prisma.interview.findFirst({
+            where: {
+                id: interviewId
+            },
+            select: {
+                id: true,
+                startDateTime: true,
+                endDateTime: true,
+                questionNum: true,
+            }
+        })
+        return Interview;
+    } catch(error) {
+        throw new Error("what");
+    }
+};
+
+const resultInterview = async (interviewId: number) => {
+    try {
+        const questionDetails = await getQuestionDetails(interviewId)
         const findInterview = await prisma.interview.findFirst({
             where: {
                 id: interviewId,
@@ -375,13 +379,26 @@ const firstResultInterview = async (interviewId: number) => {
                 subjectId: true,
                 startDateTime: true,
                 endDateTime: true,
+                totalTime: true,
                 questionNum: true,
                 score: true,
+                textScore: true,
+                otherScore: true,
+                facePositive: true,
+                faceNegative: true,
+                faceNeutral: true,
                 otherFeedback: true,
                 title: true,
                 onlyVoice: true,
             }
         })
+
+        const totalTime = questionDetails.reduce((total, detail) => total + detail.time, 0);
+        const totalMumble = questionDetails.reduce((total, detail) => total + detail.mumble, 0);
+        const totalTalk = questionDetails.reduce((total, detail) => total + detail.talk, 0);
+        const totalSilent = questionDetails.reduce((total, detail) => total + detail.silent, 0);
+        const mumbleRatio = totalMumble / totalTalk;
+        const silentRatio = totalSilent / totalTalk;
 
         if (findInterview){
             const findSubjectText = await prisma.subject.findFirst({
@@ -398,8 +415,16 @@ const firstResultInterview = async (interviewId: number) => {
                     subjectText: findSubjectText?.subjectText,
                     startDateTime: findInterview.startDateTime,
                     endDateTime: findInterview.endDateTime,
+                    totalTime: findInterview.totalTime,
                     questionNum: findInterview.questionNum,
                     score: findInterview.score,
+                    textScore: findInterview.textScore,
+                    otherScore: findInterview.otherScore,
+                    mumblePercent: mumbleRatio,
+                    silentPercent: silentRatio,
+                    facePositive: findInterview.facePositive,
+                    faceNegative: findInterview.faceNegative,
+                    faceNeutral: findInterview.faceNeutral,
                     title: findInterview.title,
                     otherFeedback: findInterview.otherFeedback,
                     onlyVoice: findInterview.onlyVoice,
@@ -415,9 +440,9 @@ const firstResultInterview = async (interviewId: number) => {
 };
 
 export default {
-  startInterview,
-  makeFeedback,
-  saveEmotion,
-  endInterview,
-  firstResultInterview,
-};
+    startInterview,
+    makeFeedback,
+    saveEmotion,
+    endInterview,
+    resultInterview
+  };

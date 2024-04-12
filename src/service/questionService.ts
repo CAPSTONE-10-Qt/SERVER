@@ -13,7 +13,7 @@ const addPin = async (interveiwQuestionId: number) => {
                 questionId: true
             }
         })
-        const pin = await prisma.question.update({
+        const pin = await prisma.interviewQuestion.update({
             where: {
                 id: findQuestionId?.questionId
             },
@@ -37,7 +37,7 @@ const deletePin = async (interveiwQuestionId: number) => {
                 questionId: true
             }
         })
-        const pin = await prisma.question.update({
+        const pin = await prisma.interviewQuestion.update({
             where: {
                 id: findQuestionId?.questionId
             },

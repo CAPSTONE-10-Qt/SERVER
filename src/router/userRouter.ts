@@ -8,20 +8,10 @@ const router: Router = Router();
 router.get(
   '/',
   [
-    header('refreshToken').notEmpty(),
+    body('refreshToken'),
   ],
   errorValidator,
   userController.accessUserInfo,
 );
-
-router.patch(
-    '/',
-    [
-      header('refreshToken').notEmpty(),
-      body('themeColor'),
-    ],
-    errorValidator,
-    userController.updateUserInfo,
-  );
 
 export default router;

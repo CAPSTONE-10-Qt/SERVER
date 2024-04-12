@@ -9,9 +9,9 @@ datasource db {
 
 model Answer {
   id                  Int     @id @default(autoincrement())
-  interviewQuestionId Int     @unique
-  questionId          Int     @unique
-  interviewId         Int     @unique
+  interviewQuestionId Int
+  questionId          Int
+  interviewId         Int
   text                String?
   mumble              Int
   silent              Int
@@ -21,39 +21,43 @@ model Answer {
 
 model Feedback {
   id                  Int     @id @default(autoincrement())
-  interviewQuestionId Int     @unique
-  answerId            Int     @unique
-  interviewId         Int     @unique
-  score               Int?
+  interviewQuestionId Int
+  answerId            Int
+  interviewId         Int
+  score               Float?  @db.Real
   feedbackText        String?
 }
 
 model Interview {
   id            Int      @id @default(autoincrement())
-  userId        Int      @unique
-  subjectId     Int      @unique
-  startDateTime DateTime @db.Time(6)
-  endDateTime   DateTime @db.Time(6)
+  userId        Int
+  startDateTime String
+  endDateTime   String?
   questionNum   Int?
   score         Int?
   otherFeedback String?
   title         String?
   onlyVoice     Boolean?
+  subjectId     Int
+  textScore     Int?
+  otherScore    Int?
+  facePositive  Float?   @db.Real
+  faceNegative  Float?   @db.Real
+  faceNeutral   Float?   @db.Real
+  totalTime     Int?
 }
 
 model Picture {
   id                  Int    @id @default(autoincrement())
-  interviewQuestionId Int    @unique
+  interviewQuestionId Int
   emotion             String
 }
 
 model Question {
   id           Int     @id @default(autoincrement())
-  subjectId    Int     @unique
+  subjectId    Int
   questionText String?
   sampleAnswer String?
-  pin Boolean
-  again Boolean
 }
 
 model Subject {
@@ -66,14 +70,15 @@ model User {
   id           Int     @id @default(autoincrement())
   userName     String
   pictureURL   String?
-  themeColor   String?
   refreshToken String?
 }
 
 model interviewQuestion {
-  id          Int      @id @default(autoincrement())
-  interviewId Int      @unique
-  questionId  Int      @unique
-  userId      Int      @unique
-  subjectId   Int      @unique
+  id          Int     @id @default(autoincrement())
+  interviewId Int
+  questionId  Int
+  userId      Int
+  subjectId   Int
+  again       Boolean @default(false)
+  pin         Boolean @default(false)
 }

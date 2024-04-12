@@ -8,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/',
   [
-    header('refreshToken').notEmpty(),
+    body('refreshToken'),
     body('subjectText').notEmpty(),
     body('questionNum').notEmpty(),
     body('onlyVoice').notEmpty(),
@@ -36,22 +36,16 @@ router.post(
   '/picture/:interviewQuestionId',
   [
     param('interviewQuestionId').notEmpty(),
-    body('angry'),
-    body('disgust'),
-    body('fear'),
-    body('happy'),
-    body('sad'),
-    body('surprise'),
-    body('neutral'),
+    body('emotion').notEmpty()
   ],
   errorValidator,
   interviewController.saveEmotion,
 );
 
 router.patch(
-  '/:interviewQuestionId',
+  '/:interviewId',
   [
-    param('interviewQuestionId').notEmpty(),
+    param('interviewId').notEmpty(),
     body('endDateTime'),
   ],
   errorValidator,
@@ -64,8 +58,7 @@ router.get(
     param('interviewId').notEmpty(),
   ],
   errorValidator,
-  interviewController.firstResultInterview,
+  interviewController.resultInterview,
 );
-
 
 export default router;

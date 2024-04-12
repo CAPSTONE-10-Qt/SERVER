@@ -13,33 +13,7 @@ const accessUserInfo = async (refreshToken: string) => {
                 id: true,
                 userName: true,
                 pictureURL: true,
-                themeColor: true,
                 refreshToken: true,
-            }
-        });
-        return userInfo;
-    } catch(error) {
-        throw error;
-    }
-};
-
-const updateUserInfo = async (refreshToken: string, themeColor: string) => {
-    try {
-        const findUserId = await prisma.user.findFirst({
-            where: {
-                refreshToken: refreshToken,
-            },
-            select: {
-                id: true,
-            }
-            
-        })
-        const userInfo = await prisma.user.update({
-            where: {
-                id: findUserId?.id
-            },
-            data: {
-                themeColor: themeColor,
             }
         });
         return userInfo;
@@ -50,5 +24,4 @@ const updateUserInfo = async (refreshToken: string, themeColor: string) => {
 
 export default {
   accessUserInfo,
-  updateUserInfo,
 };
