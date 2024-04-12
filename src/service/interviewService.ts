@@ -6,6 +6,19 @@ import { count, error } from 'console';
 import { Answer, Score } from '../index'
 const prisma = new PrismaClient();
 
+const findInterviewQuestionId = async(interviewId: number, questionId: number) => {
+    const find = await prisma.interviewQuestion.findFirst({
+            where:{
+                interviewId: interviewId,
+                questionId: questionId
+            },
+            select:{
+                id: true
+            }
+        })
+    return find!.id
+}
+
 const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken: string) => {
   try {
     const findUserId = await prisma.user.findFirst({
@@ -66,7 +79,7 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
         },
     });
 
-    const interviewQuestionPromises = selectedQuestions.map(async (question) => {
+    const interviewQuestionPromises = await Promise.all(selectedQuestions.map(async (question) => {
         const createdInterviewQuestion = await prisma.interviewQuestion.create({
             data: {
                 interviewId: createInterview.id,
@@ -75,7 +88,11 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
                 subjectId: findSubjectId!.id,
             }
         });
-    });
+        return {
+            id: createdInterviewQuestion.id,
+            text: question.questionText
+        }
+    }));
 
     const interview = ({
             id: createInterview.id,
@@ -85,10 +102,7 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
             questionNum: startInterviewDTO.questionNum,
             title: createInterview.title,
             onlyVoice: startInterviewDTO.onlyVoice,
-            questionList: selectedQuestions.map(question => ({
-                id: question.id,
-                questionText: question.questionText
-                }))
+            questionList: interviewQuestionPromises
         })
     return interview;
   } catch (error) {
@@ -220,7 +234,7 @@ const getEmotionForInterview = async (interviewId: number) => {
         data: {
             facePositive: totalPositiveEmotions,
             faceNegative: totalNegativeEmotions,
-            faceNeutral: totalNegativeEmotions,
+            faceNeutral: totalNeutralEmotions,
         }
     })
     if (totalNegativeEmotions == null) {
@@ -233,12 +247,12 @@ const getEmotionForInterview = async (interviewId: number) => {
     const threshold = totalEmotions / 2;
 
     if (threshold == 0) {
-        return null
+        return "굿";
     }
     else if (totalNegativeEmotions > threshold) {
         return "표정관리해";
     } else {
-        return null;
+        return "굿";
     }
 };
 
@@ -253,6 +267,14 @@ const getAnswerAndFeedback = async (questionId: number, interviewId: number) => 
         where: {
             questionId: questionId,
             interviewId: interviewId
+        },
+        select: {
+            id: true,
+            text: true,
+            time: true,
+            mumble: true,
+            silent: true,
+            talk: true,
         }
     });
     
@@ -270,6 +292,10 @@ const getAnswerAndFeedback = async (questionId: number, interviewId: number) => 
         where: {
             answerId: answer!.id,
             interviewId: interviewId
+        },
+        select: {
+            score: true,
+            feedbackText: true
         }
     });
     return {
@@ -305,22 +331,17 @@ const getQuestionDetails = async (interviewId: number) => {
     return questionDetails;
 }
 
-const endInterview = async (endDateTime: string, interviewId: number) => {
+const endInterview = async (interviewId: number, endDateTime: string) => {
     try {
         const questionDetails = await getQuestionDetails(interviewId)
 
         let totalScore = 0;
         let otherScore = 0;
-        for (const question of questionDetails) {
-            const mumble = question!.mumble;
-            const silent = question!.silent;
-            const talk = question!.talk;
-            const score = calculateScore(mumble!, silent!, talk!);
-            otherScore += score;
-            const textScore = question!.score;
-            totalScore += textScore!;
-        }
-        otherScore = otherScore/questionDetails.length
+        
+        questionDetails.forEach(question => {
+            totalScore += question.score!;
+            otherScore += calculateScore(question.mumble, question.silent, question.talk);
+        });
 
         let otherFeedback = "말 잘하네";
         if (otherScore < 25 && 20 <= otherScore) {
@@ -340,14 +361,22 @@ const endInterview = async (endDateTime: string, interviewId: number) => {
                 id: interviewId,
             },
             data: {
-                score: totalScore/getQuestionDetails.length*70 + otherScore,
+                score: (totalScore/questionDetails.length)*70 + otherScore/questionDetails.length,
                 otherFeedback: otherFeedback + getEmotionForInterview(interviewId),
-                endDateTime: endDateTime,
-                textScore: totalScore/getQuestionDetails.length * 70,
-                otherScore: otherScore,
-                totalTime: totalTime
+                textScore: (totalScore/questionDetails.length) * 70,
+                otherScore: otherScore/questionDetails.length,
+                totalTime: totalTime,
             }
         });
+
+        const addEndDateTime = await prisma.interview.update({
+            where: {
+                id: interviewId,
+            },
+            data: {
+                endDateTime: endDateTime
+            }
+        })
 
         const Interview = await prisma.interview.findFirst({
             where: {
@@ -410,7 +439,6 @@ const resultInterview = async (interviewId: number) => {
                 }
             })
             const firstResult = ({
-                data: {
                     id: findInterview.id,
                     subjectText: findSubjectText?.subjectText,
                     startDateTime: findInterview.startDateTime,
@@ -429,7 +457,6 @@ const resultInterview = async (interviewId: number) => {
                     otherFeedback: findInterview.otherFeedback,
                     onlyVoice: findInterview.onlyVoice,
                     questionList: questionDetails,
-                }
             })
             return firstResult
         }
@@ -444,5 +471,7 @@ export default {
     makeFeedback,
     saveEmotion,
     endInterview,
-    resultInterview
+    resultInterview,
+    getAnswerAndFeedback,
+    getQuestionDetails,
   };

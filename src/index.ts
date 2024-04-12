@@ -1,19 +1,43 @@
 import express, { NextFunction, Request, Response } from 'express';
-//import { Configuration, OpenAIApi } from 'openai';
 import Configuration, { OpenAI } from 'openai';
 import OpenAIApi from 'openai';
 import config from './config';
 import router from './router'
 import * as dotenv from 'dotenv'
 import errorHandler from './middleware/error/errorHandler';
+import cors from 'cors';
 
 dotenv.config()
 const axios = require('axios')
-const app = express(); // express 객체 받아옴
+const app = express(); // express 객체 받아옴 
+
+const allowedOrigins = [
+  'http://localhost:8000',
+  'http://localhost:3000',
+  config.ec2URL,
+];
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  const origin: string = req.headers.origin!;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'X-Requested-With, content-type, x-access-token',
+  );
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', router); 
+app.use('/', router);
 
 const openai = new OpenAI({
   organization: "org-5IqT7dxuJeAfuyJEJJhg8VXq",
@@ -38,7 +62,7 @@ export const Score = async (questionText: string, text: string) => {
   try {
     const completion = await openai.completions.create({
       model: "gpt-3.5-turbo-instruct",
-      prompt: "너는 컴퓨터공학과 교수야. 질문과 학생의 대답을 듣고 답변이 상, 중, 하 중에 어디에 속하는지 판단해서 상이면 1, 중이면 0.5, 하 면 0 값을 리턴해줘. 설명할 필요는 없어."+questionText+"이게 질문이고 다음이 학생의 답변이야."+text,
+      prompt: "너는 컴퓨터공학과 교수야. 질문과 학생의 대답을 1점, 0.5점, 0점 중에 하나를 int 값만 리턴."+questionText+"이게 질문이고 다음이 학생의 답변이야."+text,
       max_tokens: 10
     });
     const result = completion.choices[0].text;

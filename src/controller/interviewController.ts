@@ -50,10 +50,10 @@ const saveEmotion = async (req: Request, res: Response, next: NextFunction) => {
 
 const endInterview = async (req: Request, res: Response, next: NextFunction) => {
   const {interviewId} = req.params
-  const endDateTime = req.body
+  const endDateTime = req.body.endDateTime
 
   try {
-      const data = await interviewService.endInterview(endDateTime, +interviewId);
+      const data = await interviewService.endInterview(+interviewId, endDateTime);
 
       return res
       .status(statusCode.CREATED)
@@ -77,10 +77,24 @@ const resultInterview = async (req: Request, res: Response, next: NextFunction) 
   }
 }
 
+const test = async (req: Request, res: Response, next: NextFunction) => {
+  const interviewId = req.body.interviewId
+
+  try {
+      const data = await interviewService.getQuestionDetails(interviewId);
+      return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.RESULT_INTERVIEW_SUCCESS, data));
+  } catch (error) {
+      next(error);
+  }
+}
+
 export default {
   startInterview,
   makeFeedback,
   saveEmotion,
   endInterview,
-  resultInterview
+  resultInterview,
+  test
 };

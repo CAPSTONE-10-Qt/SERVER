@@ -71,6 +71,9 @@ model User {
   userName     String
   pictureURL   String?
   refreshToken String?
+  social       String?     @db.VarChar(10)
+  snsId        String?     @db.VarChar
+  email        String?     @db.VarChar(40)
 }
 
 model interviewQuestion {
