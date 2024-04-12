@@ -90,7 +90,7 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
         });
         return {
             id: createdInterviewQuestion.id,
-            text: question.questionText
+            questionText: question.questionText
         }
     }));
 
