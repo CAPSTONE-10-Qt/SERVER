@@ -20,4 +20,19 @@ export default {
     ADD_PIN_SUCCESS: "질문 스크랩 성공",
     DELETE_PIN_SUCCESS: "질문 스크랩 취소 성공",
     GET_STUDYNOTE_SUCCESS: "학습 노트 조회 성공",
+
+    CREATE_TOKEN_SUCCESS: '토큰 재발급 성공',
+    READ_VALID_ACCESS_TOKEN_SUCCESS: '토큰 유효성 조회 성공',
+    EXPIRED_TOKEN: '토큰이 만료되었습니다.',
+    EXPIRED_ALL_TOKEN: '모든 토큰이 만료되었습니다.',
+    INVALID_TOKEN: '유효하지 않은 토큰입니다.',
+    VALID_TOKEN: '유효한 토큰입니다.',
+    EMPTY_TOKEN: '토큰 값이 없습니다.',
+
+    // 소셜 로그인 및 회원가입
+    SIGNUP_SUCCESS: '회원 가입 성공',
+    SIGNUP_FAIL: '회원 가입 실패',
+    SIGNIN_SUCCESS: '로그인 성공',
+    SIGNIN_FAIL: '회원 가입이 필요한 유저입니다.',
+    NO_USER: '유저가 없습니다.',
   };

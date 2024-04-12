@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { body, header, param } from 'express-validator';
 import { interviewController } from '../controller';
 import errorValidator from '../middleware/error/errorValidator';
+import { error } from 'console';
 
 const router: Router = Router();
 
@@ -60,5 +61,14 @@ router.get(
   errorValidator,
   interviewController.resultInterview,
 );
+
+router.get(
+  '/test',
+  [
+    body('interviewId'),
+  ],
+  errorValidator,
+  interviewController.test,
+)
 
 export default router;
