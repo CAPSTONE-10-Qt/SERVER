@@ -1,8 +1,8 @@
 import { LargeNumberLike } from "crypto";
 
 export interface startInterviewDTO {
-    subjectText: string;
     questionNum: number;
+    subjectText: string;
     onlyVoice: boolean;
     startDateTime: string;
   }

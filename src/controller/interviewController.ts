@@ -6,7 +6,8 @@ import { interviewService } from '../service';
 
 const startInterview = async (req: Request, res: Response, next: NextFunction) => {
   const startInterviewDTO: startInterviewDTO = req.body;
-  const refreshToken = req.headers['refreshtoken'] as string;
+  //const refreshToken = req.headers['refreshtoken'] as string;
+  const refreshToken = req.body.refreshToken;
 
   try {
     const data = await interviewService.startInterview(startInterviewDTO, refreshToken);
@@ -20,60 +21,60 @@ const startInterview = async (req: Request, res: Response, next: NextFunction) =
 };
 
 const makeFeedback = async (req: Request, res: Response, next: NextFunction) => {
-    const makeFeedbackDTO: makeFeedbackDTO = req.body;
-    const {interviewQuestionId} = req.params
-    try {
-        const data = await interviewService.makeFeedback(makeFeedbackDTO, +interviewQuestionId);
+  const makeFeedbackDTO: makeFeedbackDTO = req.body;
+  const {interviewQuestionId} = req.params
+  try {
+      const data = await interviewService.makeFeedback(makeFeedbackDTO, +interviewQuestionId);
 
-        return res
-        .status(statusCode.CREATED)
-        .send(success(statusCode.CREATED, message.MAKE_FEEDBACK_SUCCESS, data));
-    } catch (error) {
-        next(error);
-    }
+      return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.MAKE_FEEDBACK_SUCCESS, data));
+  } catch (error) {
+      next(error);
+  }
 };
 
 const saveEmotion = async (req: Request, res: Response, next: NextFunction) => {
-    const saveEmotionDTO: saveEmotionDTO = req.body;
-    const {interviewQuestionId} = req.params
-    try {
-        const data = await interviewService.saveEmotion(saveEmotionDTO, +interviewQuestionId);
+  const saveEmotionDTO: saveEmotionDTO = req.body;
+  const {interviewQuestionId} = req.params
+  try {
+      const data = await interviewService.saveEmotion(saveEmotionDTO, +interviewQuestionId);
 
-        return res
-        .status(statusCode.CREATED)
-        .send(success(statusCode.CREATED, message.SAVE_EMOTION_SUCCESS, data));
-    } catch (error) {
-        next(error);
-    }
+      return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.SAVE_EMOTION_SUCCESS, data));
+  } catch (error) {
+      next(error);
+  }
 }
 
 const endInterview = async (req: Request, res: Response, next: NextFunction) => {
-    const {interviewQuestionId} = req.params
-    const endDateTime = req.body
+  const {interviewId} = req.params
+  const endDateTime = req.body
 
-    try {
-        const data = await interviewService.endInterview(endDateTime, +interviewQuestionId);
+  try {
+      const data = await interviewService.endInterview(endDateTime, +interviewId);
 
-        return res
-        .status(statusCode.CREATED)
-        .send(success(statusCode.CREATED, message.END_INTERVIEW_SUCCESS, data));
-    } catch (error) {
-        next(error);
-    }
+      return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.END_INTERVIEW_SUCCESS, data));
+  } catch (error) {
+      next(error);
+  }
 }
 
-const firstResultInterview = async (req: Request, res: Response, next: NextFunction) => {
-    const {interviewId} = req.params
+const resultInterview = async (req: Request, res: Response, next: NextFunction) => {
+  const {interviewId} = req.params
 
-    try {
-        const data = await interviewService.firstResultInterview(+interviewId);
+  try {
+      const data = await interviewService.resultInterview(+interviewId);
 
-        return res
-        .status(statusCode.CREATED)
-        .send(success(statusCode.CREATED, message.FIRST_RESULT_INTERVIEW_SUCCESS, data));
-    } catch (error) {
-        next(error);
-    }
+      return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.RESULT_INTERVIEW_SUCCESS, data));
+  } catch (error) {
+      next(error);
+  }
 }
 
 export default {
@@ -81,5 +82,5 @@ export default {
   makeFeedback,
   saveEmotion,
   endInterview,
-  firstResultInterview,
+  resultInterview
 };
