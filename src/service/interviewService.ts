@@ -62,9 +62,9 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
         selectedQuestions.push(shuffledQuestions[i]);
     };
     
-    const startDate = startInterviewDTO?.startDateTime.split("T")[0];
+    const startDate = startInterviewDTO?.startDateTime.substring(0,12);
 
-    const title = (startDate || '') + "모의면접" + countInterviewToday!+1;
+    const title = (startDate || '') + " 모의면접 " + countInterviewToday!+1;
 
     const createInterview = await prisma.interview.create({
         data: {
