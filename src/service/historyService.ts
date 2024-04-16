@@ -68,35 +68,7 @@ const getInterviewList = async (refreshToken: string, sortNum: number) => {
     }
 };
 
-const deleteInterview = async (interviewId: number) => {
-    try {
-        const deleteInterview = await prisma.interview.delete({
-            where: {
-                id: interviewId,
-            }
-        });
-        const deleteAnswer = await prisma.answer.deleteMany({
-            where: {
-                interviewId: interviewId,
-            }
-        });
-        const deleteFeedback = await prisma.feedback.deleteMany({
-            where: {
-                interviewId: interviewId,
-            }
-        });
-        const deleteInterviewQuestion = await prisma.interviewQuestion.deleteMany({
-            where: {
-                interviewId: interviewId,
-            }
-        });
-    } catch(error) {
-        throw error;
-    }
-}
-
 
 export default {
     getInterviewList,
-    deleteInterview,
 };

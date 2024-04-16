@@ -62,13 +62,14 @@ router.get(
   interviewController.resultInterview,
 );
 
-router.get(
-  '/test',
+router.delete(
+  '/:interviewId',
   [
-    body('interviewId'),
+    param('interviewId').notEmpty(),
   ],
   errorValidator,
-  interviewController.test,
+  interviewController.deleteInterview,
+
 )
 
 export default router;

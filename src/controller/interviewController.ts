@@ -90,11 +90,25 @@ const test = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+const deleteInterview = async (req: Request, res: Response, next: NextFunction) => {
+  const {interviewId} = req.params;
+
+  try {
+    const data = await interviewService.deleteInterview(+interviewId);
+
+    return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.DELETE_INTERVIEW_SUCCESS, data));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   startInterview,
   makeFeedback,
   saveEmotion,
   endInterview,
   resultInterview,
-  test
+  deleteInterview
 };
