@@ -45,10 +45,6 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
         }
     });
 
-    if (countInterviewToday == null) {
-        countInterviewToday = 1
-    }
-
     const questionList = await prisma.question.findMany({
         where: {
             subjectId: findSubjectId!.id
@@ -65,8 +61,10 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
     for (let i = 0; i < numQuestions; i++) {
         selectedQuestions.push(shuffledQuestions[i]);
     };
+    
+    const startDate = startInterviewDTO?.startDateTime.split("T")[0];
 
-    const title = (startInterviewDTO?.startDateTime || '') + "모의면접" + countInterviewToday!;
+    const title = (startDate || '') + "모의면접" + countInterviewToday!+1;
 
     const createInterview = await prisma.interview.create({
         data: {
@@ -466,6 +464,33 @@ const resultInterview = async (interviewId: number) => {
     }
 };
 
+const deleteInterview = async (interviewId: number) => {
+    try {
+        const deleteInterview = await prisma.interview.delete({
+            where: {
+                id: interviewId,
+            }
+        });
+        const deleteAnswer = await prisma.answer.deleteMany({
+            where: {
+                interviewId: interviewId,
+            }
+        });
+        const deleteFeedback = await prisma.feedback.deleteMany({
+            where: {
+                interviewId: interviewId,
+            }
+        });
+        const deleteInterviewQuestion = await prisma.interviewQuestion.deleteMany({
+            where: {
+                interviewId: interviewId,
+            }
+        });
+    } catch(error) {
+        throw error;
+    }
+}
+
 export default {
     startInterview,
     makeFeedback,
@@ -474,4 +499,5 @@ export default {
     resultInterview,
     getAnswerAndFeedback,
     getQuestionDetails,
+    deleteInterview,
   };
