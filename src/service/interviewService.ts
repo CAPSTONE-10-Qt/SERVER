@@ -146,14 +146,22 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
         });
 
         const feedbackText = await Answer(findQuestion!.questionText!,makeFeedbackDTO.text);
-        let score = await Score(findQuestion!.questionText!, makeFeedbackDTO.text)
+        const score = await Score(findQuestion!.questionText!, makeFeedbackDTO.text)
+        let scoreNum = 0
+        if (score.includes('1')) {
+            scoreNum = 1
+        } else if (score.includes('0.5')) {
+            scoreNum = 0.5
+        } else {
+            scoreNum = 0
+        }           
 
         const feedback = await prisma.feedback.create({
             data: {
                 interviewQuestionId: interviewQuestionId,
                 answerId: answer.id,
                 interviewId: answer.interviewId,
-                score: +score,
+                score: +scoreNum,
                 feedbackText: feedbackText,
             }
         })
@@ -242,15 +250,14 @@ const getEmotionForInterview = async (interviewId: number) => {
     if (totalEmotions == null) {
         totalEmotions = 0;
     }
-    const threshold = totalEmotions / 2;
+    const threshold = totalEmotions / 4;
 
-    if (threshold == 0) {
-        return "굿";
-    }
-    else if (totalNegativeEmotions > threshold) {
-        return "표정관리해";
+    if (threshold === 0) {
+        return "면접에서 표정이 아주 자연스럽고 조절이 잘 되었습니다. 이렇게 유연하게 표현할 수 있는 능력은 면접에서도 큰 장점입니다. 계속 이렇게 잘 유지해 주세요!";
+    } else if (totalNegativeEmotions > threshold) {
+        return "면접 중 표정을 조금 더 신경 써야 할 필요가 있습니다. 긴장이나 불안감이 표정으로 드러나고 있어, 이 부분을 개선하면 더 좋은 인상을 줄 수 있을 것입니다. 조금 더 표정 관리에 신경을 써주세요.";
     } else {
-        return "굿";
+        return "면접에서 표정 관리를 잘 했습니다. 자신감과 친절함이 표정으로 잘 전달되었습니다. 이런 모습을 유지하면 더 좋은 결과를 얻을 수 있을 것입니다. 수고하셨습니다!";
     }
 };
 
@@ -341,15 +348,17 @@ const endInterview = async (interviewId: number, endDateTime: string) => {
             otherScore += calculateScore(question.mumble, question.silent, question.talk);
         });
 
-        let otherFeedback = "말 잘하네";
+        otherScore = otherScore/questionDetails.length
+
+        let otherFeedback = "면접에 대한 답변이 매우 탁월합니다. 당신의 자신감과 표현력은 매우 인상적입니다. 당신의 응답은 분명히 면접관들에게도 좋은 인상을 줄 것입니다. 그러나, 항상 완벽하지는 않습니다. 조금 더 세부적으로 응답을 다듬으면 면접 성과를 더욱 향상시킬 수 있을 것으로 보입니다. 계속해서 노력해 주시기 바랍니다.";
         if (otherScore < 25 && 20 <= otherScore) {
-            const otherFeedback = "웅얼거리는거 좀만 고쳐";
+            const otherFeedback = "당신의 응답은 매우 수준 높은 편입니다. 그러나, 가끔씩 말이 조금 어색해 보일 때가 있습니다. 이는 큰 문제는 아니지만, 더 자연스러운 표현을 위해 조금 더 노력하시면 좋을 것 같습니다. 스스로 더 많은 자신감을 줄 수 있도록 노력해 주시기 바랍니다.";
         };
         if (otherScore < 20 && 15 <= otherScore) {
-            const otherFeedback = "말 제대로하자";
+            const otherFeedback = "당신의 응답은 좋은 편입니다. 그러나, 답변에서 일부 어색한 부분이 보입니다. 이는 큰 문제는 아니지만, 더 자연스러운 표현을 위해 조금 더 노력하시면 좋을 것 같습니다. 더 많은 연습과 자신에 대한 확신을 가지시면 면접에서 더 좋은 성과를 이끌어 낼 수 있을 것입니다.";
         };
         if (otherScore < 15) {
-            const otherFeedback = "심각한데?";
+            const otherFeedback = "당신의 응답은 자주 어색한 부분이 보입니다. 더 많은 연습과 자신에 대한 확신을 가지시면 면접에서 더 좋은 성과를 이끌어 낼 수 있을 것입니다. 좀 더 자연스럽고 확고한 표현을 위해 노력해 주시기 바랍니다.";
         };
 
         const totalTime = questionDetails.reduce((total, detail) => total + detail.time, 0);
@@ -359,10 +368,10 @@ const endInterview = async (interviewId: number, endDateTime: string) => {
                 id: interviewId,
             },
             data: {
-                score: (totalScore/questionDetails.length)*70 + otherScore/questionDetails.length,
+                score: (totalScore/questionDetails.length)*70 + otherScore,
                 otherFeedback: otherFeedback + getEmotionForInterview(interviewId),
                 textScore: (totalScore/questionDetails.length) * 70,
-                otherScore: otherScore/questionDetails.length,
+                otherScore: otherScore,
                 totalTime: totalTime,
             }
         });
@@ -424,8 +433,8 @@ const resultInterview = async (interviewId: number) => {
         const totalMumble = questionDetails.reduce((total, detail) => total + detail.mumble, 0);
         const totalTalk = questionDetails.reduce((total, detail) => total + detail.talk, 0);
         const totalSilent = questionDetails.reduce((total, detail) => total + detail.silent, 0);
-        const mumbleRatio = totalMumble / totalTalk;
-        const silentRatio = totalSilent / totalTalk;
+        const mumbleRatio = (totalMumble / totalTalk + totalMumble)*100;
+        const silentRatio = (totalSilent / totalTalk + totalSilent)*100;
 
         if (findInterview){
             const findSubjectText = await prisma.subject.findFirst({
