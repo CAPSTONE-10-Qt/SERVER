@@ -66,7 +66,7 @@ export const Score = async (questionText: string, text: string) => {
       model: "gpt-3.5-turbo-instruct",
       temperature: 0,
       user: 'IT company interviewer',
-      prompt: questionText+"이게 면접 질문이고,"+text+"이게 답변 내용이야. 채점표에는 0점, 0.5점, 1점 만 있어. 몇점 줄거야?",
+      prompt: questionText+"이게 면접 질문이고,"+text+"이게 답변 내용이야. 채점표에는 0점, 0.5점, 1점 만 있어. 몇점 줄거야? 후하게 채점해.",
       max_tokens: 3
     });
     const result = completion.choices[0].text;

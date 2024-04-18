@@ -433,8 +433,8 @@ const resultInterview = async (interviewId: number) => {
         const totalMumble = questionDetails.reduce((total, detail) => total + detail.mumble, 0);
         const totalTalk = questionDetails.reduce((total, detail) => total + detail.talk, 0);
         const totalSilent = questionDetails.reduce((total, detail) => total + detail.silent, 0);
-        const mumbleRatio = (totalMumble / totalTalk + totalMumble)*100;
-        const silentRatio = (totalSilent / totalTalk + totalSilent)*100;
+        const mumbleRatio = (totalMumble / (totalTalk + totalMumble))*100;
+        const silentRatio = (totalSilent / (totalTalk + totalSilent))*100;
 
         if (findInterview){
             const findSubjectText = await prisma.subject.findFirst({
