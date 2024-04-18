@@ -48,7 +48,9 @@ export const Answer = async (questionText: string, text: string) => {
   try {
     const completion = await openai.completions.create({
       model: "gpt-3.5-turbo-instruct",
-      prompt: "너는 컴퓨터공학과 교수야. 뒤에 오는 컴공 질문과 학생의 대답을 듣고 평가해. 구체적으로 어느 부분은 맞았지만 어떤 부분은 부족한지 \"첨삭\"을 자세히. 학생 답변을 다시 보여줄 필요는 없어. 답변 글자수는 300자 안쪽으로 말해줘."+questionText+"이게 질문이고 다음이 학생의 답변이야."+text,
+      temperature: 0,
+      user: 'IT company interviewer',
+      prompt: "너가 한 면접 질문은 이거고 "+questionText+", 면접자의 답변은 다음과같아."+text+ "면접자에 대한 피드백을 대답의 좋은 점, 틀린 내용과 첨삭, 아쉬웠던 부분 등을 꼭 포함해서 공백포함 400자로 작성해줘.",
       max_tokens: 400
     });
     const result = completion.choices[0].text;
@@ -62,8 +64,10 @@ export const Score = async (questionText: string, text: string) => {
   try {
     const completion = await openai.completions.create({
       model: "gpt-3.5-turbo-instruct",
-      prompt: "너는 컴퓨터공학과 교수야. 질문과 학생의 대답을 1점, 0.5점, 0점 중에 하나를 float 값만 리턴. 답변은 float 값만 줘."+questionText+"이게 질문이고 다음이 학생의 답변이야."+text,
-      max_tokens: 10
+      temperature: 0,
+      user: 'IT company interviewer',
+      prompt: questionText+"이게 면접 질문이고,"+text+"이게 답변 내용이야. 채점표에는 0점, 0.5점, 1점 만 있어. 몇점 줄거야?",
+      max_tokens: 3
     });
     const result = completion.choices[0].text;
     return result;
