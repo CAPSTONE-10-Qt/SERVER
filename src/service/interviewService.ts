@@ -145,21 +145,17 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
             }
         });
 
-        //const feedbackText = await Answer(findQuestion!.questionText!,makeFeedbackDTO.text);
-        //const score = await Score(findQuestion!.questionText!, makeFeedbackDTO.text)
-        //let scoreNum = 0
-        /**
+        const feedbackText = await Answer(findQuestion!.questionText!,makeFeedbackDTO.text);
+        const score = await Score(findQuestion!.questionText!, makeFeedbackDTO.text)
+        let scoreNum = 0
+    
         if (score.includes('1')) {
             scoreNum = 1
         } else if (score.includes('0.5')) {
             scoreNum = 0.5
         } else {
             scoreNum = 0
-        }   
-        */        
-
-        const feedbackText = "면접자의 답변은 프로세스와 스레드의 차이점을 설명하는데 있어서 기본적인 개념을 잘 이해하고 있으며, 프로세스와 스레 드의 개념을 명확하게 구분하고 설명하고 있습니다. 또한 프로세스와 스레드의 고유한 특징을 잘 이해하고 있으며, 스레드가 프로세스 내부에서 발생한다는 점을 잘 설명하고 있습니다. 하지만 답변 중간에 프로세스와 스레드의 차이점을 설명하는 부분에서 조금 어색한 표현이 있어서 좀 더 자연스러운 표현을 사용하면 더 좋을 것 같습니다. 또한 프로세스와 스레드의 차이점을 설명할 때, 스레드가 프로세스 내부에서 발생한다는 점 을 강조하는 것보다는 스레드가 프로세스 내부에서 실행된다는 점을 강조하는 것이 더 좋을 것 같습니다. 또한 답변의 마지막 부분에서 프로세스 간의 전환은 운영체제 수준에서 일어나지만 스레드간의 전환은 프로세스 내부에서 발생한다는 내용이 조금 모호하게 표현되어 있습니다";
-        const scoreNum = 0.5;
+        } 
 
         const feedback = await prisma.feedback.create({
             data: {
