@@ -3,7 +3,7 @@ import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
 const prisma = new PrismaClient();
 
-const getIntervewDetails = async (refreshToken: string) => {
+const getIntervewDetails = async (refreshToken: string, orderBy: any) => {
     const findUserId = await prisma.user.findFirst({
         where: {
             refreshToken: refreshToken
@@ -12,10 +12,12 @@ const getIntervewDetails = async (refreshToken: string) => {
             id: true,
         }
     });
+
     const findInterview = await prisma.interview.findMany({
         where: {
             userId: findUserId!.id
         },
+        orderBy: orderBy,
         select: {
             id: true,
             subjectId: true,
@@ -27,6 +29,7 @@ const getIntervewDetails = async (refreshToken: string) => {
             questionNum: true,
         }
     });
+
     const interviewDetails = await Promise.all(findInterview.map(async (interview) => {
         const subject = await prisma.subject.findUnique({
             where: {
@@ -48,26 +51,25 @@ const getIntervewDetails = async (refreshToken: string) => {
 
 const getInterviewList = async (refreshToken: string, sortNum: number) => {
     try {
-        let interviewList = await getIntervewDetails(refreshToken);
+        let orderBy;
         if (sortNum === 1) {
-            interviewList.sort((a, b) => {
-                const dateA = new Date(a.startDateTime);
-                const dateB = new Date(b.startDateTime);
-                return dateB.getTime() - dateA.getTime();
-            })
+            orderBy = { startDateTime: 'desc' };
         } else if (sortNum === 2) {
-            interviewList.sort((a, b) => (b.score || 0) - (a.score || 0));
+            orderBy = { score: 'desc' };
         } else if (sortNum === 3) {
-            interviewList.sort((a, b) => (a.score || 0) - (b.score || 0));
-        } else {
-            interviewList
+            orderBy = { score: 'asc' };
         }
-        return { data: { interviewList } };
+
+        const interviewList = await getIntervewDetails(refreshToken, orderBy);
+
+        return { 
+            interviewList,
+            sortNum
+        }
     } catch(error) {
         throw error;
     }
 };
-
 
 export default {
     getInterviewList,

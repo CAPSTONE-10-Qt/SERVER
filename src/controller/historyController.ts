@@ -4,8 +4,8 @@ import { success } from '../module/constant/utils';
 import { historyService } from '../service';
 
 const getInterviewList = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.headers['refreshtoken'] as string;
-  const {sortNum} = req.params;
+  const refreshToken = req.body.refreshToken;
+  const sortNum = req.params.sortNum;
 
   try {
     const data = await historyService.getInterviewList(refreshToken, +sortNum);
