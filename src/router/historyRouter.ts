@@ -8,8 +8,8 @@ const router: Router = Router();
 router.get(
   '/:sortNum',
   [
-    param('sortNum'),
-    header('refreshToken'),
+    param('sortNum').notEmpty(),
+    body('refreshToken'),
   ],
   errorValidator,
   historyController.getInterviewList,
