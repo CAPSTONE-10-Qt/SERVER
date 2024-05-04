@@ -4,34 +4,19 @@ import { success } from '../module/constant/utils';
 import { questionService } from '../service';
 
 const addPin = async (req: Request, res: Response, next: NextFunction) => {
-  const {interveiwQuestionId} = req.params;
-
+  const interviewQuestionId = req.params.interviewQuestionId;
+  const pin = req.body.pin;
   try {
-    const data = await questionService.addPin(+interveiwQuestionId);
+    const data = await questionService.addPin(+interviewQuestionId, pin);
 
     return res
       .status(statusCode.CREATED)
-      .send(success(statusCode.CREATED, message.ADD_PIN_SUCCESS, data));
+      .send(success(statusCode.CREATED, message.GET_INTERVIEWLIST_SUCCESS, data));
   } catch (error) {
     next(error);
   }
 };
 
-const deletePin = async (req: Request, res: Response, next: NextFunction) => {
-    const {interveiwQuestionId} = req.params;
-  
-    try {
-      const data = await questionService.deletePin(+interveiwQuestionId);
-  
-      return res
-        .status(statusCode.CREATED)
-        .send(success(statusCode.CREATED, message.DELETE_PIN_SUCCESS, data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
 export default {
     addPin,
-    deletePin,
 };

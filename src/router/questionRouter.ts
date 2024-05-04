@@ -8,19 +8,11 @@ const router: Router = Router();
 router.patch(
   '/:interviewQuestionId',
   [
-    param('interveiwQuestionId').notEmpty(),
+    param('interviewQuestionId').notEmpty(),
+    body('pin').notEmpty(),
   ],
   errorValidator,
   questionController.addPin,
 );
-
-router.delete(
-  '/:interviewQuestionId',
-  [
-    param('interviewQuestionId').notEmpty(),
-  ],
-  errorValidator,
-  questionController.deletePin,
-)
 
 export default router;
