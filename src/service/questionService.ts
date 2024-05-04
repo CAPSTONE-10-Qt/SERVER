@@ -3,55 +3,31 @@ import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
 const prisma = new PrismaClient();
 
-const addPin = async (interveiwQuestionId: number) => {
-    try {
-        const findQuestionId = await prisma.interviewQuestion.findFirst({
+const addPin = async(interviewQuestionId: number, pin: number) => {
+    if (pin == 0) {
+        const updatePin = await prisma.interviewQuestion.update({
             where: {
-                id: interveiwQuestionId,
-            },
-            select: {
-                questionId: true
-            }
-        })
-        const pin = await prisma.interviewQuestion.update({
-            where: {
-                id: findQuestionId?.questionId
+                id: interviewQuestionId,
             },
             data: {
-                pin: true,
-            }
-        });
-        return pin
-    } catch(error) {
-        throw error;
-    }
-};
-
-const deletePin = async (interveiwQuestionId: number) => {
-    try {
-        const findQuestionId = await prisma.interviewQuestion.findFirst({
-            where: {
-                id: interveiwQuestionId,
-            },
-            select: {
-                questionId: true
+                pin: false
             }
         })
-        const pin = await prisma.interviewQuestion.update({
+        return updatePin
+    }
+    else if (pin == 1) {
+        const updatePin = await prisma.interviewQuestion.update({
             where: {
-                id: findQuestionId?.questionId
+                id: interviewQuestionId,
             },
             data: {
-                pin: false,
+                pin: true
             }
-        });
-        return pin
-    } catch(error) {
-        throw error;
+        })
+        return updatePin
     }
-};
+}
 
 export default {
   addPin,
-  deletePin,
 };
