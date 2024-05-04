@@ -90,4 +90,5 @@ model interviewQuestion {
   subjectId   Int
   again       Boolean? @default(false)
   pin         Boolean? @default(false)
+  isAgain     Boolean? @default(false)
 }
