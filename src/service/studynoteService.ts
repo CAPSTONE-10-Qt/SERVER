@@ -101,6 +101,134 @@ const startAgain = async(interviewQuestionId: number, refreshToken: string) => {
     return result;
 }
 
+const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: boolean, refreshToken: string) => {
+    const findUserId = await prisma.user.findFirst({
+        where: {
+            refreshToken: refreshToken
+        },
+        select: {
+            id: true
+        }
+    });
+
+    interface ScoreResult {
+        score: number | null;
+    }
+    
+    const findScore = async (interviewQuestionId: number): Promise<number | null> => {
+        const score = await prisma.feedback.findFirst({
+            where: {
+                interviewQuestionId: interviewQuestionId
+            },
+            select: {
+                score: true
+            }
+        })
+        return score? score.score : null;
+    };
+
+    let interviewQuestions = await prisma.interviewQuestion.findMany({
+        where: {
+            userId: findUserId!.id,
+            isAgain: false
+        },
+        select: {
+            id: true,
+            subjectId: true,
+            again: true,
+            questionId: true,
+            pin: true,
+        }
+    });
+
+    if (sortNum === 2) {
+        interviewQuestions = interviewQuestions.filter(question => question.again === true);
+    } else if (sortNum === 3) {
+        interviewQuestions = interviewQuestions.filter(question => question.pin === true);
+    }
+
+    if (subjectText !== 'ALL') {
+        interviewQuestions = interviewQuestions.filter(async question => {
+            return (await prisma.subject.findFirst({
+                where: {
+                    id: question.subjectId,
+                    subjectText: subjectText
+                }
+            })) !== null;
+        });
+    }
+
+    if (onlyWrong) {
+        interviewQuestions = interviewQuestions.filter(async question => {
+            const score = await findScore(question.id);
+            return ( score !== 1 )
+        });
+    }
+
+    const findInterview = async( interviewQuestionId: number) => {
+        const interviewId = await prisma.interviewQuestion.findFirst({
+            where: {
+                id: interviewQuestionId
+            },
+            select: {
+                interviewId: true
+            }
+        })
+        const interview = await prisma.interview.findFirst({
+            where: {
+                id: interviewId!.interviewId
+            },
+            select: {
+                id: true,
+                title: true,
+                subjectId: true
+            }
+        })
+        return interview;
+    }
+
+    const findQuestionText = async( questionId: number ) => {
+        const result = await prisma.question.findFirst({
+            where: {
+                id: questionId,
+            },
+            select: {
+                questionText: true
+            }
+        })
+        return result
+    }
+
+    const result = await Promise.all(interviewQuestions.map(async (question) => {
+        const subject = await prisma.subject.findFirst({
+            where: {
+                id: question.subjectId
+            },
+            select: {
+                subjectText: true
+            }
+        });
+
+        const interview = await findInterview(question.id);
+        const questionText = await findQuestionText(question.questionId);
+        const score = await findScore(question.id);
+
+        return {
+            id: question.id,
+            subjectText: subject!.subjectText,
+            title: interview!.title,
+            again: question.again,
+            questionText: questionText,
+            score: score,
+            pin: question.pin,
+        };
+    }));
+
+    return result;
+}
+
+
 export default {
   startAgain,
+  getStudyNotes
 };
