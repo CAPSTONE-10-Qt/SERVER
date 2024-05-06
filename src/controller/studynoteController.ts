@@ -17,6 +17,25 @@ const startAgain = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getStudyNotes = async (req: Request, res: Response, next: NextFunction) => {
+  const sortNumParam = req.params.sortNum;
+  const sortNum = typeof sortNumParam === 'string' ? parseInt(sortNumParam, 10) : 1;
+  const subjectText = typeof req.query.subjectText === 'string';
+  const onlyWrong = typeof req.query.onlyWrong === 'boolean';
+  const refreshToken = req.body.refreshToken;
+
+  try {
+    const data = await studynoteService.getStudyNotes(sortNum, subjectText, onlyWrong, refreshToken);
+
+    return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.GET_INTERVIEWLIST_SUCCESS, data));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
     startAgain,
+    getStudyNotes
 };
