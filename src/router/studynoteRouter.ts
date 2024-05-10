@@ -27,4 +27,15 @@ router.get(
   studynoteController.getStudyNotes,
 );
 
+router.patch(
+  '/end/:interviewQuestionId', 
+  [
+    param('interviewQuestionId').notEmpty(),
+    body('time'),
+    body('endDateTime')
+  ], 
+  errorValidator, 
+  studynoteController.endAgain,
+);
+
 export default router;

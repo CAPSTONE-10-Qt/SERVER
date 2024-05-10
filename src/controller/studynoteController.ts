@@ -25,7 +25,22 @@ const getStudyNotes = async (req: Request, res: Response, next: NextFunction) =>
   const refreshToken = req.body.refreshToken;
 
   try {
-    const data = await studynoteService.getStudyNotes(sortNum, subjectText, onlyWrong, refreshToken);
+    const data = await studynoteService.getStudyNotes(sortNum, "hi", onlyWrong, refreshToken);
+
+    return res
+      .status(statusCode.CREATED)
+      .send(success(statusCode.CREATED, message.GET_INTERVIEWLIST_SUCCESS, data));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const endAgain = async (req: Request, res: Response, next: NextFunction) => {
+  const interviewQuestionId = req.params.interviewQuestionId;
+  const time = req.body.time;
+  const endDateTime = req.body.endDateTime;
+  try {
+    const data = await studynoteService.endAgain(+interviewQuestionId, time, endDateTime);
 
     return res
       .status(statusCode.CREATED)
@@ -37,5 +52,6 @@ const getStudyNotes = async (req: Request, res: Response, next: NextFunction) =>
 
 export default {
     startAgain,
-    getStudyNotes
+    getStudyNotes,
+    endAgain,
 };

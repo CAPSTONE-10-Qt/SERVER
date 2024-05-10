@@ -23,6 +23,7 @@ model Answer {
   silent              Int
   talk                Int
   time                Int
+  endDateTime   String?
 }
 
 model Feedback {

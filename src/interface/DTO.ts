@@ -13,6 +13,7 @@ export interface startInterviewDTO {
     talk: number;
     time: number;
     text: string;
+    endDateTime: string;
   }
 
   export interface saveEmotionDTO{
