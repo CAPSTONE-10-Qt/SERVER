@@ -227,8 +227,81 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
     return result;
 }
 
+const getAnswerAndFeedback = async (interviewQuestionId: number) => {
+    const answer = await prisma.answer.findFirst({
+        where: {
+            interviewQuestionId: interviewQuestionId
+        },
+        select: {
+            id: true,
+            questionId: true,
+            text: true,
+            time: true,
+        }
+    });
+    
+    const question = await prisma.question.findFirst({
+        where: {
+            id: answer!.questionId,
+        },
+        select: {
+            questionText: true,
+            sampleAnswer: true
+        }
+    })
+
+    const feedback = await prisma.feedback.findFirst({
+        where: {
+            interviewQuestionId: interviewQuestionId
+        },
+        select: {
+            score: true,
+            feedbackText: true
+        }
+    });
+    return {
+        questionId: answer!.questionId,
+        questionText: question!.questionText,
+        score: feedback!.score,
+        text: answer!.text,
+        feedbackText: feedback!.feedbackText,
+    }
+}
+
+const getQuestionDetails = async (interviewQuestionId: number) => {
+    const findQuestionList = await prisma.interviewQuestion.findMany({
+        where: {
+            id: interviewQuestionId,
+        },
+        select: {
+            id: true,
+            interviewId: true,
+            questionId: true,
+        }
+    })
+    const questionDetails = [];
+    for (const question of findQuestionList) {
+        const details = await getAnswerAndFeedback(question.id);
+        questionDetails.push(details);
+    }
+    return questionDetails;
+}
+
+const endAgain = async(interviewQuestionId: number, time: number, endDateTime: string) => {
+    const updateQuestion = await prisma.answer.update({
+        where: {
+            id: interviewQuestionId
+        },
+        data: {
+            time: time,
+            endDateTime: endDateTime
+        }
+    });
+    return updateQuestion
+}
 
 export default {
   startAgain,
-  getStudyNotes
+  getStudyNotes,
+  endAgain
 };

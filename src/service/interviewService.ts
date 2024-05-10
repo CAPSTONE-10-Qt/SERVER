@@ -142,6 +142,7 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
                 silent: makeFeedbackDTO.silent,
                 talk: makeFeedbackDTO.talk,
                 time: makeFeedbackDTO.time,
+                endDateTime: makeFeedbackDTO.endDateTime
             }
         });
 
