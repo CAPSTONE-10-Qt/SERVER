@@ -290,7 +290,7 @@ const getQuestionDetails = async (interviewQuestionId: number) => {
 const endAgain = async(interviewQuestionId: number, time: number, endDateTime: string) => {
     const updateQuestion = await prisma.answer.update({
         where: {
-            interviewQuestionId: interviewQuestionId
+            id: interviewQuestionId
         },
         data: {
             time: time,
