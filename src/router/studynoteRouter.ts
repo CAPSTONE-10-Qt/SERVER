@@ -38,4 +38,13 @@ router.patch(
   studynoteController.endAgain,
 );
 
+router.get(
+  '/detail/:questionId',
+  [
+    param('questionId').notEmpty(),
+  ],
+  errorValidator,
+  studynoteController.getQuestionDetail
+)
+
 export default router;
