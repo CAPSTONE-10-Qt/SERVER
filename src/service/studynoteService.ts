@@ -111,6 +111,10 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
         }
     });
 
+    if (!findUserId) {
+        throw new Error("User not found");
+    }
+
     interface ScoreResult {
         score: number | null;
     }
@@ -123,13 +127,13 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
             select: {
                 score: true
             }
-        })
-        return score? score.score : null;
+        });
+        return score ? score.score : null;
     };
 
     let interviewQuestions = await prisma.interviewQuestion.findMany({
         where: {
-            userId: findUserId!.id,
+            userId: findUserId.id,
             isAgain: false
         },
         select: {
@@ -148,24 +152,27 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
     }
 
     if (subjectText !== 'ALL') {
-        interviewQuestions = interviewQuestions.filter(async question => {
-            return (await prisma.subject.findFirst({
+        const filteredQuestions = await Promise.all(interviewQuestions.map(async question => {
+            const subject = await prisma.subject.findFirst({
                 where: {
                     id: question.subjectId,
                     subjectText: subjectText
                 }
-            })) !== null;
-        });
+            });
+            return subject ? question : null;
+        }));
+        interviewQuestions = filteredQuestions.filter(question => question !== null) as typeof interviewQuestions;
     }
 
-    if (onlyWrong) {
-        interviewQuestions = interviewQuestions.filter(async question => {
+    if (onlyWrong === true) {
+        const filteredQuestions = await Promise.all(interviewQuestions.map(async question => {
             const score = await findScore(question.id);
-            return ( score !== 1 )
-        });
+            return score !== 1 ? question : null;
+        }));
+        interviewQuestions = filteredQuestions.filter(question => question !== null) as typeof interviewQuestions;
     }
 
-    const findInterview = async( interviewQuestionId: number) => {
+    const findInterview = async(interviewQuestionId: number) => {
         const interviewId = await prisma.interviewQuestion.findFirst({
             where: {
                 id: interviewQuestionId
@@ -173,21 +180,24 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
             select: {
                 interviewId: true
             }
-        })
+        });
+        if (!interviewId) {
+            throw new Error("Interview not found");
+        }
         const interview = await prisma.interview.findFirst({
             where: {
-                id: interviewId!.interviewId
+                id: interviewId.interviewId
             },
             select: {
                 id: true,
                 title: true,
                 subjectId: true
             }
-        })
+        });
         return interview;
-    }
+    };
 
-    const findQuestionText = async( questionId: number ) => {
+    const findQuestionText = async(questionId: number) => {
         const result = await prisma.question.findFirst({
             where: {
                 id: questionId,
@@ -195,9 +205,9 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
             select: {
                 questionText: true
             }
-        })
-        return result
-    }
+        });
+        return result;
+    };
 
     const result = await Promise.all(interviewQuestions.map(async (question) => {
         const subject = await prisma.subject.findFirst({
@@ -215,10 +225,10 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
 
         return {
             id: question.id,
-            subjectText: subject!.subjectText,
-            title: interview!.title,
+            subjectText: subject ? subject.subjectText : "Unknown",
+            title: interview ? interview.title : "Unknown",
             again: question.again,
-            questionText: questionText,
+            questionText: questionText ? questionText.questionText : "Unknown",
             score: score,
             pin: question.pin,
         };
@@ -227,28 +237,58 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
     return result;
 }
 
+
+const endAgain = async(interviewQuestionId: number, time: number, endDateTime: string) => {
+    const findAnswerId = await prisma.answer.findFirst({
+        where: {
+            interviewQuestionId: interviewQuestionId
+        },
+        select: {
+            id: true
+        }
+    })
+
+    const updateQuestion = await prisma.answer.update({
+        where: {
+            id: findAnswerId?.id
+        },
+        data: {
+            time: time,
+            endDateTime: endDateTime
+        }
+    });
+    return updateQuestion
+}
+
 const getAnswerAndFeedback = async (interviewQuestionId: number) => {
+    try {
     const answer = await prisma.answer.findFirst({
         where: {
             interviewQuestionId: interviewQuestionId
         },
         select: {
-            id: true,
             questionId: true,
             text: true,
             time: true,
+            endDateTime: true
         }
     });
+    if (!answer) {
+        throw new Error('Answer not found');
+    }
     
     const question = await prisma.question.findFirst({
         where: {
-            id: answer!.questionId,
+            id: answer.questionId,
         },
         select: {
             questionText: true,
             sampleAnswer: true
         }
     })
+    if (!question) {
+        throw new Error('Question not found');
+    }
 
     const feedback = await prisma.feedback.findFirst({
         where: {
@@ -259,49 +299,126 @@ const getAnswerAndFeedback = async (interviewQuestionId: number) => {
             feedbackText: true
         }
     });
-    return {
-        questionId: answer!.questionId,
-        questionText: question!.questionText,
-        score: feedback!.score,
-        text: answer!.text,
-        feedbackText: feedback!.feedbackText,
+    if (!feedback) {
+        throw new Error('Feedback not found');
     }
+
+    return {
+        questionId: answer.questionId,
+        questionText: question.questionText,
+        score: feedback.score,
+        text: answer.text,
+        feedbackText: feedback.feedbackText,
+        sampleAnswer: question.sampleAnswer,
+        time: answer.time,
+        endDateTime: answer.endDateTime
+    }
+} catch (error) {
+    console.error('Error in getAnswerAndFeedback:', error);
+    throw error;
+}
 }
 
-const getQuestionDetails = async (interviewQuestionId: number) => {
-    const findQuestionList = await prisma.interviewQuestion.findMany({
+const getQuestionDetail = async(questionId: number) => {
+    try {
+    const findFirstQuestion = await prisma.interviewQuestion.findFirst({
         where: {
-            id: interviewQuestionId,
+            questionId: questionId,
+            isAgain: false
         },
         select: {
             id: true,
             interviewId: true,
-            questionId: true,
+            subjectId: true,
+            pin: true,
+            again: true
         }
     })
-    const questionDetails = [];
-    for (const question of findQuestionList) {
-        const details = await getAnswerAndFeedback(question.id);
-        questionDetails.push(details);
-    }
-    return questionDetails;
-}
 
-const endAgain = async(interviewQuestionId: number, time: number, endDateTime: string) => {
-    const updateQuestion = await prisma.answer.update({
-        where: {
-            id: interviewQuestionId
-        },
-        data: {
-            time: time,
-            endDateTime: endDateTime
-        }
+    if (!findFirstQuestion) {
+        throw new Error('Question not found');
+    }
+
+    const subject = await prisma.subject.findFirst({
+        where: { id: findFirstQuestion.subjectId },
+        select: { subjectText: true }
     });
-    return updateQuestion
+    if (!subject) {
+        throw new Error('Subject not found');
+    }
+
+    const interview = await prisma.interview.findFirst({
+        where: { id: findFirstQuestion.interviewId },
+        select: { title: true }
+    });
+    if (!interview) {
+        throw new Error('Interview not found');
+    }
+
+    const questionNum = await getQuestionNum(findFirstQuestion.interviewId, findFirstQuestion.id)
+    const initialAnswerAndFeedback = await getAnswerAndFeedback(findFirstQuestion.id)
+
+    let againList = await prisma.interviewQuestion.findMany({
+        where: {
+            questionId: questionId,
+            isAgain: true
+        },
+        select: {
+            id: true
+        }
+    })
+
+    interface AgainDetail {
+        startDateTime: Date;
+        time: number;
+        score: number;
+        text: string;
+        feedbackText: string;
+    }
+
+    let againDetails; 
+
+    if (againList.length > 0) {
+        againDetails = await Promise.all(
+            againList.map(async (againQuestion) => {
+                const details = await getAnswerAndFeedback(againQuestion.id);
+                return {
+                    startDateTime: details.endDateTime,
+                    time: details.time,
+                    score: details.score,
+                    text: details.text,
+                    feedbackText: details.feedbackText
+                }   
+            })
+        )
+    }   
+
+    const result = ({
+        id: findFirstQuestion.id,
+        title: interview.title,
+        questionNum: questionNum,
+        subjectText: subject.subjectText,
+        score: initialAnswerAndFeedback.score,
+        pin: findFirstQuestion.pin,
+        again: findFirstQuestion.again,
+        questionText: initialAnswerAndFeedback.questionText,
+        text: initialAnswerAndFeedback.text,
+        sampleAnswer: initialAnswerAndFeedback.sampleAnswer,
+        feedbackText: initialAnswerAndFeedback.feedbackText,
+        startDateTime: initialAnswerAndFeedback.endDateTime,
+        time: initialAnswerAndFeedback.time,
+        againList: againDetails
+    })
+    return result;
+    } catch (error) {
+        console.error('Error in getQuestionDetail', error);
+        throw error;
+    }
 }
 
 export default {
   startAgain,
   getStudyNotes,
-  endAgain
+  endAgain,
+  getQuestionDetail,
 };
