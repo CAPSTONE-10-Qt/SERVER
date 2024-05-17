@@ -122,6 +122,15 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
         }
     })
 
+    const findTime = await prisma.interview.findFirst({
+        where: {
+            id: findInterviewQuestion?.interviewId
+        },
+        select: {
+            startDateTime: true
+        }
+    })
+
     if (findInterviewQuestion) {
         const answer = await prisma.answer.create({
             data: {
@@ -133,7 +142,7 @@ const makeFeedback = async (makeFeedbackDTO: makeFeedbackDTO, interviewQuestionI
                 silent: makeFeedbackDTO.silent,
                 talk: makeFeedbackDTO.talk,
                 time: makeFeedbackDTO.time,
-                endDateTime: makeFeedbackDTO.endDateTime
+                endDateTime: findTime!.startDateTime
             }
         });
 
@@ -297,7 +306,7 @@ const getAnswerAndFeedback = async (questionId: number, interviewId: number) => 
         }
     });
     return {
-        questionId: questionId,
+        id: findInterviewQuestionId(interviewId, questionId),
         questionText: question!.questionText,
         sampleAnswer: question!.sampleAnswer,
         score: feedback!.score,
@@ -318,7 +327,7 @@ const getQuestionDetails = async (interviewId: number) => {
         select: {
             id: true,
             interviewId: true,
-            questionId: true,
+            questionId: true
         }
     })
     const questionDetails = [];
