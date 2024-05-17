@@ -305,8 +305,18 @@ const getAnswerAndFeedback = async (questionId: number, interviewId: number) => 
             feedbackText: true
         }
     });
+
+    const findInterviewQuestionId = await prisma.interviewQuestion.findFirst({
+        where: {
+            interviewId: interviewId,
+            questionId: questionId
+        },
+        select: {
+            id: true
+        }
+    });
     return {
-        id: findInterviewQuestionId(interviewId, questionId),
+        id: findInterviewQuestionId!.id,
         questionText: question!.questionText,
         sampleAnswer: question!.sampleAnswer,
         score: feedback!.score,
