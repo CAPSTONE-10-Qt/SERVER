@@ -40,9 +40,9 @@ router.patch(
 );
 
 router.get(
-  '/detail/:questionId',
+  '/detail/:interviewQuestionId',
   [
-    param('questionId').notEmpty(),
+    param('interviewQuestionId').notEmpty(),
   ],
   errorValidator,
   auth,
