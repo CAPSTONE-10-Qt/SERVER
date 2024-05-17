@@ -297,17 +297,18 @@ const getAnswerAndFeedback = async (interviewQuestionId: number) => {
 }
 }
 
-const getQuestionDetail = async(questionId: number, userId: number) => {
+const getQuestionDetail = async(interviewQuestionId: number, userId: number) => {
     try {
     const findFirstQuestion = await prisma.interviewQuestion.findFirst({
         where: {
-            questionId: questionId,
+            id: interviewQuestionId,
             userId: userId,
             isAgain: false
         },
         select: {
             id: true,
             interviewId: true,
+            questionId: true,
             subjectId: true,
             pin: true,
             again: true
@@ -339,7 +340,7 @@ const getQuestionDetail = async(questionId: number, userId: number) => {
 
     let againList = await prisma.interviewQuestion.findMany({
         where: {
-            questionId: questionId,
+            questionId: findFirstQuestion.questionId,
             isAgain: true
         },
         select: {

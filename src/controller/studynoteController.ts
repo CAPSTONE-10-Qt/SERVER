@@ -50,11 +50,11 @@ const endAgain = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getQuestionDetail = async (req: Request, res: Response, next: NextFunction) => {
-  const questionId = req.params.questionId;
+  const interviewQuestionId = req.params.interviewQuestionId;
   const userId = req.body.userId;
 
   try {
-    const data = await studynoteService.getQuestionDetail(+questionId, userId);
+    const data = await studynoteService.getQuestionDetail(+interviewQuestionId, userId);
 
     return res
       .status(statusCode.CREATED)
