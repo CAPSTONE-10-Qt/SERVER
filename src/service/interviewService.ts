@@ -19,17 +19,8 @@ const findInterviewQuestionId = async(interviewId: number, questionId: number) =
     return find!.id
 }
 
-const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken: string) => {
+const startInterview = async (startInterviewDTO: startInterviewDTO, userId: number) => {
   try {
-    const findUserId = await prisma.user.findFirst({
-        where: {
-            refreshToken: refreshToken,
-        },
-        select: {
-            id: true,
-        },
-    });
-
     const findSubjectId = await prisma.subject.findFirst({
         where: {
             subjectText: startInterviewDTO.subjectText,
@@ -68,7 +59,7 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
 
     const createInterview = await prisma.interview.create({
         data: {
-            userId: findUserId!.id,
+            userId: userId,
             subjectId: findSubjectId!.id,
             startDateTime: startInterviewDTO!.startDateTime,
             questionNum: startInterviewDTO.questionNum,
@@ -82,7 +73,7 @@ const startInterview = async (startInterviewDTO: startInterviewDTO, refreshToken
             data: {
                 interviewId: createInterview.id,
                 questionId: question.id,
-                userId: findUserId!.id,
+                userId: userId,
                 subjectId: findSubjectId!.id,
             }
         });

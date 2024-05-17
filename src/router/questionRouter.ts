@@ -9,7 +9,6 @@ router.patch(
   '/:interviewQuestionId',
   [
     param('interviewQuestionId').notEmpty(),
-    body('pin').notEmpty(),
   ],
   errorValidator,
   questionController.addPin,

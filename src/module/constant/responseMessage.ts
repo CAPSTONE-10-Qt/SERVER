@@ -35,4 +35,5 @@ export default {
     SIGNIN_SUCCESS: '로그인 성공',
     SIGNIN_FAIL: '회원 가입이 필요한 유저입니다.',
     NO_USER: '유저가 없습니다.',
+    INVALID_PASSWORD: "잘못된 비밀번호입니다.",
   };

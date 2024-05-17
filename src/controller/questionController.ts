@@ -5,9 +5,8 @@ import { questionService } from '../service';
 
 const addPin = async (req: Request, res: Response, next: NextFunction) => {
   const interviewQuestionId = req.params.interviewQuestionId;
-  const pin = req.body.pin;
   try {
-    const data = await questionService.addPin(+interviewQuestionId, pin);
+    const data = await questionService.addPin(+interviewQuestionId);
 
     return res
       .status(statusCode.CREATED)

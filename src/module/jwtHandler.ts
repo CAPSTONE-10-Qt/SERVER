@@ -1,22 +1,13 @@
-import jwt from 'jsonwebtoken';
-import config from '../config';
-import exceptionMessage from './constant/exceptionMessage';
+import jwt from "jsonwebtoken";
+import tokenType from "./constant/tokenType";
 
 //* 받아온 userId를 담는 access token 생성
 const sign = (userId: number) => {
   const payload = {
-    id: userId,
+    userId,
   };
-
-  const accessToken = jwt.sign(payload, config.jwtSecret, {
-    expiresIn: '3h',
-  });
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "2h" });
   return accessToken;
-};
-
-const createRefresh = () => {
-  const refreshToken = jwt.sign({}, config.jwtSecret, { expiresIn: '14d' });
-  return refreshToken;
 };
 
 //* token 검사!
@@ -24,14 +15,14 @@ const verify = (token: string) => {
   let decoded: string | jwt.JwtPayload;
 
   try {
-    decoded = jwt.verify(token, config.jwtSecret);
+    decoded = jwt.verify(token, process.env.JWT_SECRET as string);
   } catch (error: any) {
-    if (error.message === 'jwt expired') {
-      return exceptionMessage.TOKEN_EXPIRED;
-    } else if (error.message === 'invalid token') {
-      return exceptionMessage.TOKEN_INVALID;
+    if (error.message === "jwt expired") {
+      return tokenType.TOKEN_EXPIRED;
+    } else if (error.message === "invalid token") {
+      return tokenType.TOKEN_INVALID;
     } else {
-      return exceptionMessage.TOKEN_INVALID;
+      return tokenType.TOKEN_INVALID;
     }
   }
 
@@ -40,6 +31,5 @@ const verify = (token: string) => {
 
 export default {
   sign,
-  createRefresh,
   verify,
 };

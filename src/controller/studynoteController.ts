@@ -4,10 +4,10 @@ import { success } from '../module/constant/utils';
 import { studynoteService } from '../service';
 
 const startAgain = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.body.refreshToken;
+  const userId = req.body.userId;
   const interviewQuestionId = req.params.interviewQuestionId;
   try {
-    const data = await studynoteService.startAgain(+interviewQuestionId, refreshToken);
+    const data = await studynoteService.startAgain(+interviewQuestionId, userId);
 
     return res
       .status(statusCode.CREATED)
@@ -20,11 +20,11 @@ const startAgain = async (req: Request, res: Response, next: NextFunction) => {
 const getStudyNotes = async (req: Request, res: Response, next: NextFunction) => {
   const sortNum = parseInt(req.params.sortNum, 10); // sortNum을 숫자로 변환
   const subjectText = req.query.subjectText as string; // subjectText를 문자열로 타입 변환
-  const onlyWrong = req.query.onlyWrong === 'true'
-  const refreshToken = req.body.refreshToken;
+  const onlyWrong = req.query.onlyWrong === "1";
+  const userId = req.body.userId;
 
   try {
-    const data = await studynoteService.getStudyNotes(sortNum, subjectText, onlyWrong, refreshToken);
+    const data = await studynoteService.getStudyNotes(sortNum, subjectText, onlyWrong, userId);
 
     return res
       .status(statusCode.CREATED)
@@ -51,9 +51,10 @@ const endAgain = async (req: Request, res: Response, next: NextFunction) => {
 
 const getQuestionDetail = async (req: Request, res: Response, next: NextFunction) => {
   const questionId = req.params.questionId;
+  const userId = req.body.userId;
 
   try {
-    const data = await studynoteService.getQuestionDetail(+questionId);
+    const data = await studynoteService.getQuestionDetail(+questionId, userId);
 
     return res
       .status(statusCode.CREATED)

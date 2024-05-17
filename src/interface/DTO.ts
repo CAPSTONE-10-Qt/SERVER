@@ -19,3 +19,14 @@ export interface startInterviewDTO {
   export interface saveEmotionDTO{
     emotion: string;
   }
+
+  export interface UserCreateDTO {
+    name: string;
+    email: string;
+    password: string;
+  }
+
+  export interface UserSignInDTO {
+    email: string;
+    password: string;
+  }
