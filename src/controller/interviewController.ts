@@ -6,11 +6,10 @@ import { interviewService } from '../service';
 
 const startInterview = async (req: Request, res: Response, next: NextFunction) => {
   const startInterviewDTO: startInterviewDTO = req.body;
-  //const refreshToken = req.headers['refreshtoken'] as string;
-  const refreshToken = req.body.refreshToken;
+  const userId = req.body.userId;
 
   try {
-    const data = await interviewService.startInterview(startInterviewDTO, refreshToken);
+    const data = await interviewService.startInterview(startInterviewDTO, userId);
 
     return res
       .status(statusCode.CREATED)

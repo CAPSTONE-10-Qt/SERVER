@@ -3,19 +3,10 @@ import errorGenerator from '../middleware/error/errorGenerator';
 import { message, statusCode } from '../module/constant';
 const prisma = new PrismaClient();
 
-const getIntervewDetails = async (refreshToken: string, orderBy: any) => {
-    const findUserId = await prisma.user.findFirst({
-        where: {
-            refreshToken: refreshToken
-        },
-        select: {
-            id: true,
-        }
-    });
-
+const getIntervewDetails = async (userId: number, orderBy: any) => {
     const findInterview = await prisma.interview.findMany({
         where: {
-            userId: findUserId!.id
+            userId: userId
         },
         orderBy: orderBy,
         select: {
@@ -49,7 +40,7 @@ const getIntervewDetails = async (refreshToken: string, orderBy: any) => {
     return interviewDetails;
 }
 
-const getInterviewList = async (refreshToken: string, sortNum: number) => {
+const getInterviewList = async (userId: number, sortNum: number) => {
     try {
         let orderBy;
         if (sortNum === 1) {
@@ -60,7 +51,7 @@ const getInterviewList = async (refreshToken: string, sortNum: number) => {
             orderBy = { score: 'asc' };
         }
 
-        const interviewList = await getIntervewDetails(refreshToken, orderBy);
+        const interviewList = await getIntervewDetails(userId, orderBy);
 
         return { 
             interviewList,

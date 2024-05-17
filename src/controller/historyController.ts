@@ -2,13 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import { message, statusCode } from '../module/constant';
 import { success } from '../module/constant/utils';
 import { historyService } from '../service';
+import { auth } from '../middleware';
 
 const getInterviewList = async (req: Request, res: Response, next: NextFunction) => {
-  const refreshToken = req.body.refreshToken;
   const sortNum = req.params.sortNum;
+  const userId = req.body.userId;
 
   try {
-    const data = await historyService.getInterviewList(refreshToken, +sortNum);
+    const data = await historyService.getInterviewList(userId, +sortNum);
 
     return res
       .status(statusCode.CREATED)

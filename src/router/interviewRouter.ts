@@ -3,19 +3,20 @@ import { body, header, param } from 'express-validator';
 import { interviewController } from '../controller';
 import errorValidator from '../middleware/error/errorValidator';
 import { error } from 'console';
+import { auth } from '../middleware';
 
 const router: Router = Router();
 
 router.post(
   '/',
   [
-    body('refreshToken'),
     body('subjectText').notEmpty(),
     body('questionNum').notEmpty(),
     body('onlyVoice').notEmpty(),
     body('startDateTime').notEmpty(),
   ],
   errorValidator,
+  auth,
   interviewController.startInterview,
 );
 

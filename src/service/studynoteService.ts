@@ -19,16 +19,7 @@ const getQuestionNum = async (interviewId: number, interviewQuestionId: number) 
     return questionIndex !== -1 ? questionIndex + 1 : -1;
 }
 
-const startAgain = async(interviewQuestionId: number, refreshToken: string) => {
-    const findUserId = await prisma.user.findFirst({
-        where: {
-            refreshToken: refreshToken,
-        },
-        select: {
-            id: true,
-        },
-    });
-
+const startAgain = async(interviewQuestionId: number, userId: number) => {
     const findSubjectId = await prisma.interviewQuestion.findFirst({
         where: {
             id: interviewQuestionId
@@ -71,7 +62,7 @@ const startAgain = async(interviewQuestionId: number, refreshToken: string) => {
         data: {
             interviewId: 0,
             questionId: findSubjectId!.questionId,
-            userId: findUserId!.id,
+            userId: userId,
             subjectId: findSubjectId!.subjectId,
             again: true,
             pin: false,
@@ -101,20 +92,7 @@ const startAgain = async(interviewQuestionId: number, refreshToken: string) => {
     return result;
 }
 
-const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: boolean, refreshToken: string) => {
-    const findUserId = await prisma.user.findFirst({
-        where: {
-            refreshToken: refreshToken
-        },
-        select: {
-            id: true
-        }
-    });
-
-    if (!findUserId) {
-        throw new Error("User not found");
-    }
-
+const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: boolean, userId: number) => {
     interface ScoreResult {
         score: number | null;
     }
@@ -133,7 +111,7 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
 
     let interviewQuestions = await prisma.interviewQuestion.findMany({
         where: {
-            userId: findUserId.id,
+            userId: userId,
             isAgain: false
         },
         select: {
@@ -319,11 +297,12 @@ const getAnswerAndFeedback = async (interviewQuestionId: number) => {
 }
 }
 
-const getQuestionDetail = async(questionId: number) => {
+const getQuestionDetail = async(questionId: number, userId: number) => {
     try {
     const findFirstQuestion = await prisma.interviewQuestion.findFirst({
         where: {
             questionId: questionId,
+            userId: userId,
             isAgain: false
         },
         select: {
