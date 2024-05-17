@@ -187,6 +187,7 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
         return result;
     };
 
+
     const result = await Promise.all(interviewQuestions.map(async (question) => {
         const subject = await prisma.subject.findFirst({
             where: {
@@ -200,11 +201,13 @@ const getStudyNotes = async (sortNum: number, subjectText: string, onlyWrong: bo
         const interview = await findInterview(question.id);
         const questionText = await findQuestionText(question.questionId);
         const score = await findScore(question.id);
+        const questionNum = await getQuestionNum(interview!.id, question.id)
 
         return {
             id: question.id,
             subjectText: subject ? subject.subjectText : "Unknown",
             title: interview ? interview.title : "Unknown",
+            questionNum : questionNum,
             again: question.again,
             questionText: questionText ? questionText.questionText : "Unknown",
             score: score,
