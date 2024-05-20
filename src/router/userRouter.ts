@@ -9,7 +9,7 @@ import app from '..';
 
 const router: Router = Router();
 
-router.get('/myPage', auth, userController.accessUserInfo);
+router.get('/myPage', errorValidator, auth, userController.accessUserInfo);
 
 router.get(
   "/", async (req, res) => {

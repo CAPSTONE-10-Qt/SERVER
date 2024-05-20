@@ -10,7 +10,7 @@ import jwtHandler from '../module/jwtHandler';
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { id, name, avatar_url } = req.body;
   const data = await userService.createUser(id, name, avatar_url)
-  const accessToken = jwtHandler.sign(id);
+  const accessToken = jwtHandler.sign(data.id);
   const result = {
     id: data.id,
     name: data.name,
