@@ -7,55 +7,18 @@ import { validationResult } from 'express-validator';
 import { UserCreateDTO, UserSignInDTO } from '../interface/DTO';
 import jwtHandler from '../module/jwtHandler';
 
-const createUser = async (req: Request, res: Response) => {
-
-  //? 기존 비구조화 할당 방식 -> DTO의 형태
-  const userCreateDto: UserCreateDTO = req.body;
-  const data = await userService.createUser(userCreateDto);
-
-  if (!data) {
-    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.SIGNUP_FAIL))
-  }
-
-  const accessToken = jwtHandler.sign(data.id);
-
+const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { id, name, avatar_url } = req.body;
+  const data = await userService.createUser(id, name, avatar_url)
+  const accessToken = jwtHandler.sign(id);
   const result = {
     id: data.id,
-    name: data.userName,
-    accessToken,
-  };
-
+    name: data.name,
+    img: data.img,
+    githubID: data.githubID,
+    accessToken
+  }
   return res.status(sc.CREATED).send(success(sc.CREATED, rm.SIGNUP_SUCCESS, result));
-};
-
-const signInUser = async (req: Request, res: Response) => {
-  const error = validationResult(req);
-  if (!error.isEmpty()) {
-    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
-  }
-
-  const userSignInDto: UserSignInDTO = req.body;
-
-  try {
-    const userId = await userService.signIn(userSignInDto);
-
-    if (!userId) return res.status(sc.NOT_FOUND).send(fail(sc.NOT_FOUND, rm.NOT_FOUND));
-    else if (userId === sc.UNAUTHORIZED)
-      return res.status(sc.UNAUTHORIZED).send(fail(sc.UNAUTHORIZED, rm.INVALID_PASSWORD));
-
-    const accessToken = jwtHandler.sign(userId);
-
-    const result = {
-      id: userId,
-      accessToken,
-    };
-
-    res.status(sc.OK).send(success(sc.OK, rm.SIGNIN_SUCCESS, result));
-  } catch (e) {
-    console.log(error);
-    //? 서버 내부에서 오류 발생
-    res.status(sc.INTERNAL_SERVER_ERROR).send(fail(sc.INTERNAL_SERVER_ERROR, rm.INTERNAL_SERVER_ERROR));
-  }
 };
 
 const accessUserInfo = async (req: Request, res: Response, next: NextFunction) => {
@@ -73,5 +36,4 @@ const accessUserInfo = async (req: Request, res: Response, next: NextFunction) =
 export default {
     accessUserInfo,
     createUser,
-    signInUser
 };
