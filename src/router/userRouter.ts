@@ -12,7 +12,7 @@ const router: Router = Router();
 router.get('/myPage', auth, userController.accessUserInfo);
 
 router.get(
-  "/github", async (req, res) => {
+  "/", async (req, res) => {
     const githubAuthUrl = 'https://github.com/login/oauth/authorize?client_id=' + env.OAUTH_CLIENT_ID
     res.redirect(githubAuthUrl);
   }
