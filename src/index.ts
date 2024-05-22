@@ -48,9 +48,9 @@ export const Answer = async (questionText: string, text: string) => {
   try {
     const completion = await openai.completions.create({
       model: "gpt-3.5-turbo-instruct",
-      temperature: 0,
+      temperature: 0.2,
       user: 'IT company interviewer',
-      prompt: "너가 한 면접 질문은 이거고 "+questionText+", 면접자의 답변은 다음과같아."+text+ "면접자에 대한 피드백을 대답의 좋은 점, 틀린 내용과 첨삭, 아쉬웠던 부분 등을 꼭 포함해서 공백포함 400자로 작성해줘.",
+      prompt: "너가 한 면접 질문은 이거고 "+questionText+", 면접자의 답변은 다음과같아."+text+ "면접자에 대한 피드백을 대답의 좋은 점, 틀린 내용과 첨삭, 아쉬웠던 부분 등을 꼭 포함해서 4줄로 작성해줘.",
       max_tokens: 400
     });
     const result = completion.choices[0].text;
@@ -64,7 +64,7 @@ export const Score = async (questionText: string, text: string) => {
   try {
     const completion = await openai.completions.create({
       model: "gpt-3.5-turbo-instruct",
-      temperature: 0,
+      temperature: 0.2,
       user: 'IT company interviewer',
       prompt: questionText+"이게 면접 질문이고,"+text+"이게 답변 내용이야. 채점표에는 0점, 0.5점, 1점 만 있어. 내용 자체가 틀리면 0점, 부연설명이 필요하면 0.5점, 충분한거같으면 1점을 줘. 몇점 줄거야?",
       max_tokens: 3
