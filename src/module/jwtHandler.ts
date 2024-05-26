@@ -6,7 +6,7 @@ const sign = (userId: number) => {
   const payload = {
     userId,
   };
-  const accessToken = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "2h" });
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "100d" });
   return accessToken;
 };
 
