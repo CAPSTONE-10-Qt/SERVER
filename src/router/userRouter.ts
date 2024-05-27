@@ -12,39 +12,15 @@ const router: Router = Router();
 router.get('/myPage', errorValidator, auth, userController.accessUserInfo);
 
 router.get(
-  "/", async (req, res) => {
-    const githubAuthUrl = 'https://github.com/login/oauth/authorize?client_id=Ov23lixVaThlij8Bpe5C'
-    res.redirect(githubAuthUrl);
-  }
+  "/", 
+  [
+    body('id'),
+    body('name'),
+    body('avata_url')
+  ], 
+  errorValidator, 
+  userController.createUser,
 )
-
-router.get("/github/callback", (req, res, next: NextFunction) => {
-  axios.post("https://github.com/login/oauth/access_token", {
-      client_id: 'Ov23lixVaThlij8Bpe5C',
-      client_secret: 'ba0d34d04459baac00c39734156aeb3f69d7be25',
-      code: req.query.code
-  }, {
-      headers: {
-          Accept: "application/json"
-      }
-  }).then(async (result) => {
-      console.log(result.data.access_token)
-      const userResponse = await axios({
-        method: 'GET',
-        url: 'https://api.github.com/user',
-        headers: {
-          Authorization: `token ${result.data.access_token}`,
-        },
-      })
-    console.log('social login result:', userResponse.data)
-    req.body.id = userResponse.data.id;
-    req.body.name = userResponse.data.name;
-    req.body.avatar_url = userResponse.data.avatar_url
-    userController.createUser(req, res, next)
-  }).catch((err) => {
-      console.log(err);
-  })
-})
 
 export default router;
 
