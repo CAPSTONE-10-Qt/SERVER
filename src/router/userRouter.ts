@@ -11,12 +11,12 @@ const router: Router = Router();
 
 router.get('/myPage', errorValidator, auth, userController.accessUserInfo);
 
-router.get(
+router.post(
   "/", 
   [
     body('id'),
     body('name'),
-    body('avata_url')
+    body('avatar_url')
   ], 
   errorValidator, 
   userController.createUser,
