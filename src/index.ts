@@ -14,6 +14,8 @@ const app = express(); // express 객체 받아옴
 const allowedOrigins = [
   'http://localhost:8000',
   'http://localhost:3000',
+  'https://iterview.vercel.app',
+  'https://iterview.duckdns.org',
   config.ec2URL,
 ];
 const corsOptions = {
