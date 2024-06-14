@@ -8,6 +8,11 @@
 |:------:|:------:|:---------:|:---------:|
 | Repository | [FE](https://github.com/TEAM-ITERVIEW/CLIENT) | [BE](https://github.com/TEAM-ITERVIEW/SERVER) | [ML](https://github.com/TEAM-ITERVIEW/ML_SERVER) |
 
+### 💻 BE Project Start
+
+| 설치 | `npm install` | 실행 | `yarn run dev` |
+| :---: | :---: | :---: | :---: |
+
 ![1](https://github.com/TEAM-ITERVIEW/.github/assets/102040717/a1b8b991-2f5c-4bfd-968c-2fbc38f65a9d)
 ![2](https://github.com/TEAM-ITERVIEW/.github/assets/102040717/2cdf9256-6dd0-4340-93e4-7a6e88bf4a70)
 
